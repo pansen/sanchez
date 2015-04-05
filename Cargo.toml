@@ -1,0 +1,13 @@
+[package]
+
+name = "testing rust"
+version = "0.0.1"
+authors = [ "Andi <andi@zerotired.com>" ]
+
+[dependencies]
+log = "0.3.*"
+fern = "0.3.*"
+time = "*"
+
+[[bin]]
+name = "abc"
