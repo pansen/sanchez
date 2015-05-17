@@ -6,8 +6,8 @@ authors = [ "Andi <andi@zerotired.com>" ]
 
 [dependencies]
 log = "0.3.*"
-fern = "0.3.*"
-time = "*"
+fern = "0.3.5"
+time = "0.1.25"
 
 [[bin]]
 name = "abc"
