@@ -6,6 +6,7 @@ extern crate time;
 mod logging;
 use std::process::Command;
 use std::string::String;
+use std::io;
 
 fn main(){
 	logging::setup_logging();
@@ -24,6 +25,13 @@ fn main(){
 ///
 /// about strings in rust: http://stackoverflow.com/a/24159933
 fn cmd(cmd: &str) {
+	info!("enter a value: ");
+	let mut input = String::new();
+	io::stdin().read_line(&mut input)
+		.ok()
+		.expect("failed to read line");
+	info!("hello {}", input);
+
 	let process = Command::new(cmd).arg("-la").output().ok().expect("Failed to execute");
 	let stdout = String::from_utf8(process.stdout).ok().expect("Failed to read");
 
