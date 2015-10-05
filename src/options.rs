@@ -57,3 +57,32 @@ fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
     print!("{}", opts.usage(&brief));
 }
+
+#[cfg(test)] #[macro_use]
+mod tests {
+	use super::{parse_commandline_options, Command};
+
+	#[test]
+	fn test_parse_commandline_options_no_options() {
+		let args = vec!("main".to_string());
+		let command:Command;
+
+	    match parse_commandline_options(&args) {
+	        Ok(c) => {command = c;}
+	        Err(f) => { panic!(f) }
+	    };
+		assert_eq!(false, command.list);
+	}
+
+	#[test]
+	fn test_parse_commandline_options_list() {
+		let args = vec!("main".to_string(), "-l".to_string());
+		let command:Command;
+
+	    match parse_commandline_options(&args) {
+	        Ok(c) => {command = c;}
+	        Err(f) => { panic!(f) }
+	    };
+		assert_eq!(true, command.list);
+	}
+}
