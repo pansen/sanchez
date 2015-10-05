@@ -15,16 +15,27 @@ use std::io;
 
 fn main(){
 	logging::setup_logging();
+	let command:options::Command;
+
     match options::parse_commandline_options(&env::args().collect()) {
-        Ok(_) => {}
+        Ok(c) => {command = c;}
         Err(f) => { panic!("panic: {}", f) }
     };
 
-	cmd("ls");
+	if command.list == true {
+		list_devices();
+	}
 
+	// cmd("ls");
 	info!("Info message");
 	let x: i64 = 5;
 	info!("x is {}", x);
+}
+
+fn list_devices() {
+    for device in pcap::Device::list().unwrap() {
+        println!("Found device! {:?}", device);
+    }
 }
 
 /// try a system command
