@@ -11,6 +11,7 @@ use std::env;
 mod logging;
 mod options;
 use std::process::Command;
+use ansi_term::Colour::{Yellow, };
 
 fn main(){
 	logging::setup_logging();
@@ -18,21 +19,21 @@ fn main(){
 
     match options::parse_commandline_options(&env::args().collect()) {
         Ok(c) => {command = c;}
-        Err(f) => { panic!("panic: {}", f) }
+        Err(f) => { panic!("panic: {:?}", f) }
     };
 
 	if command.list == true {
 		list_devices();
 	}
-
-	// cmd("ls");
-	info!("Info message");
-	let x: i64 = 5;
-	info!("x is {}", x);
 }
 
 fn list_devices() {
-    for device in pcap::Device::list().unwrap() {
-        println!("Found device! {:?}", device);
-    }
+	let devices = pcap::Device::list().ok().expect("Failed to list devices");
+
+	if devices.len() > 0 {
+		println!("Found {} devices:", Yellow.paint(&devices.len().to_string()));
+	    for device in devices {
+	        println!("- {}", Yellow.paint(&device.name.to_string()));
+	    }
+	}
 }
