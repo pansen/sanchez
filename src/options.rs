@@ -58,6 +58,8 @@ fn print_usage(program: &str, opts: Options) {
     print!("{}", opts.usage(&brief));
 }
 
+/// tests. yeah.
+/// see: https://github.com/rust-lang-nursery/getopts/blob/master/src/lib.rs#L1035
 #[cfg(test)] #[macro_use]
 mod tests {
 	use super::{parse_commandline_options, Command};
