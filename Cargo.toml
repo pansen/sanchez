@@ -8,6 +8,7 @@ authors = [ "Andi <andi@zerotired.com>" ]
 log = "0.3.*"
 fern = "0.3.5"
 time = "0.1.25"
+ansi_term = "0.6.*"
 getopts = "0.2*"
 pcap = "0.4.2"
 

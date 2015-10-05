@@ -3,6 +3,7 @@ extern crate log;
 extern crate fern;
 extern crate time;
 extern crate getopts;
+extern crate ansi_term;
 
 
 use std::env;
