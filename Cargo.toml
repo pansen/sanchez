@@ -1,6 +1,6 @@
 [package]
 
-name = "play with rust"
+name = "sanchez - http sniffer"
 version = "0.0.1"
 authors = [ "Andi <andi@zerotired.com>" ]
 
@@ -13,4 +13,4 @@ getopts = "0.2*"
 pcap = "0.4.2"
 
 [[bin]]
-name = "main"
+name = "sanchez"
