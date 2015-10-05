@@ -6,12 +6,11 @@ extern crate pcap;
 extern crate getopts;
 extern crate ansi_term;
 
-
 use std::env;
 mod logging;
 mod options;
-use std::process::Command;
-use ansi_term::Colour::{Yellow, };
+use std::process::{Command, exit};
+use ansi_term::Colour::{Yellow, Red, };
 
 fn main(){
 	logging::setup_logging();
@@ -24,6 +23,7 @@ fn main(){
 
 	if command.list == true {
 		list_devices();
+		exit(0);
 	}
 }
 
@@ -35,5 +35,8 @@ fn list_devices() {
 	    for device in devices {
 	        println!("- {}", Yellow.paint(&device.name.to_string()));
 	    }
+	} else {
+		println!("{}", Red.paint("No devices found."));
+		exit(1);
 	}
 }
