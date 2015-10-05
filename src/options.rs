@@ -8,6 +8,7 @@ pub struct Command {
 
 
 /// parse possible commandline options
+/// see: https://doc.rust-lang.org/getopts/getopts/index.html
 pub fn parse_commandline_options(args: &Vec<String>) -> Result<Command, String>{
     debug!("parsing options ...");
 
@@ -38,7 +39,7 @@ pub fn parse_commandline_options(args: &Vec<String>) -> Result<Command, String>{
     let output = matches.opt_str("i");
     if matches.free.is_empty() {
     	// resolve `core::option::Option` to a string ref
-    	// https://doc.rust-lang.org/core/option/index.html#examples
+    	// see: https://doc.rust-lang.org/core/option/index.html#examples
 		match output {
 		    Some(ref m) => debug!("found commandline-option: `{}`: {}", "i", *m),
 		    None => (),
