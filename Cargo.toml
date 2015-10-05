@@ -1,6 +1,6 @@
 [package]
 
-name = "testing rust"
+name = "play with rust"
 version = "0.0.1"
 authors = [ "Andi <andi@zerotired.com>" ]
 
@@ -8,6 +8,8 @@ authors = [ "Andi <andi@zerotired.com>" ]
 log = "0.3.*"
 fern = "0.3.5"
 time = "0.1.25"
+getopts = "0.2*"
+pcap = "0.4.2"
 
 [[bin]]
-name = "abc"
+name = "main"
