@@ -11,6 +11,7 @@ mod logging;
 mod options;
 use std::process::{Command, exit};
 use ansi_term::Colour::{Yellow, Red, };
+use pcap::{Capture, Device};
 
 fn main(){
 	logging::setup_logging();
@@ -25,6 +26,7 @@ fn main(){
 		list_devices();
 		exit(0);
 	}
+	capture();
 }
 
 fn list_devices() {
@@ -39,4 +41,15 @@ fn list_devices() {
 		println!("{}", Red.paint("No devices found."));
 		exit(1);
 	}
+}
+
+fn capture() {
+	let mut cap = Capture::from_device(Device::lookup().unwrap()) // open the "default" interface
+              .unwrap() // assume the device exists and we are authorized to open it
+              .open() // activate the handle
+              .unwrap(); // assume activation worked
+
+    while let Some(packet) = cap.next() {
+        println!("received packet! {:?}", packet);
+    }
 }
