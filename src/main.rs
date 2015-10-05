@@ -15,7 +15,10 @@ use std::io;
 
 fn main(){
 	logging::setup_logging();
-	options::parse_commandline_options(&env::args().collect());
+    match options::parse_commandline_options(&env::args().collect()) {
+        Ok(_) => {}
+        Err(f) => { panic!("panic: {}", f) }
+    };
 
 	cmd("ls");
 
