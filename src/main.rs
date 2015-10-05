@@ -2,43 +2,54 @@
 extern crate log;
 extern crate fern;
 extern crate time;
+extern crate pcap;
+extern crate getopts;
+extern crate ansi_term;
 
+use std::env;
 mod logging;
-use std::process::Command;
-use std::string::String;
-use std::io;
+mod options;
+use std::process::{Command, exit};
+use ansi_term::Colour::{Yellow, Red, };
+use pcap::{Capture, Device};
 
 fn main(){
 	logging::setup_logging();
+	let command:options::Command;
 
-	cmd("ls");
+    match options::parse_commandline_options(&env::args().collect()) {
+        Ok(c) => {command = c;}
+        Err(f) => { panic!("panic: {:?}", f) }
+    };
 
-	info!("Info message");
-	let x: i64 = 5;
-	info!("x is {}", x);
+	if command.list == true {
+		list_devices();
+		exit(0);
+	}
+	capture();
 }
 
-/// try a system command
-/// see:
-/// 	- http://stackoverflow.com/questions/26478009/running-an-external-process-in-rust
-/// 	- https://doc.rust-lang.org/core/result/
-///
-/// about strings in rust: http://stackoverflow.com/a/24159933
-fn cmd(cmd: &str) {
-	info!("enter a value: ");
-	let mut input = String::new();
-	io::stdin().read_line(&mut input)
-		.ok()
-		.expect("failed to read line");
-	info!("hello {}", input);
+fn list_devices() {
+	let devices = pcap::Device::list().ok().expect("Failed to list devices");
 
-	let process = Command::new(cmd).arg("-la").output().ok().expect("Failed to execute");
-	let stdout = String::from_utf8(process.stdout).ok().expect("Failed to read");
-
-	info!("{}", stdout);
-
-	let split: Vec<&str> = stdout.split('\n').collect();
-	for i in split {
-		info!("     {}", i);
+	if devices.len() > 0 {
+		println!("Found {} devices:", Yellow.paint(&devices.len().to_string()));
+	    for device in devices {
+	        println!("- {}", Yellow.paint(&device.name.to_string()));
+	    }
+	} else {
+		println!("{}", Red.paint("No devices found."));
+		exit(1);
 	}
+}
+
+fn capture() {
+	let mut cap = Capture::from_device(Device::lookup().unwrap()) // open the "default" interface
+              .unwrap() // assume the device exists and we are authorized to open it
+              .open() // activate the handle
+              .unwrap(); // assume activation worked
+
+    while let Some(packet) = cap.next() {
+        println!("received packet! {:?}", packet);
+    }
 }

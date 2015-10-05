@@ -40,5 +40,4 @@ nb-configuration.xml
 *.iml
 *.ipr
 *.iws
-*.sublime-project
 *.sublime-workspace
