@@ -2,14 +2,19 @@
 extern crate log;
 extern crate fern;
 extern crate time;
+extern crate getopts;
 
+
+use std::env;
 mod logging;
+mod options;
 use std::process::Command;
 use std::string::String;
 use std::io;
 
 fn main(){
 	logging::setup_logging();
+	options::parse_commandline_options(&env::args().collect());
 
 	cmd("ls");
 
