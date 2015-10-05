@@ -53,8 +53,6 @@ pub fn parse_commandline_options(args: &Vec<String>) -> Result<Command, String>{
     }
 
     if matches.opt_present("p") {
-    	// resolve `core::option::Option` to a string ref
-    	// see: https://doc.rust-lang.org/core/option/index.html#examples
 		match matches.opt_str("p") {
 		    Some(ref m) => {
 		    	debug!("found commandline-option: `{}`: {}", "p", m.trim());
@@ -83,6 +81,8 @@ mod tests {
 
 	#[test]
 	fn test_parse_commandline_options_no_options() {
+		logging::setup_logging();
+
 		let args = vec!("main".to_string());
 		let command:Command;
 
@@ -135,7 +135,6 @@ mod tests {
 
 	#[test]
 	fn test_parse_commandline_options_interface_and_port() {
-		logging::setup_logging();
 		let args = vec!("main".to_string(), "-i eth0".to_string(), "-p 8080".to_string());
 		let command:Command;
 
