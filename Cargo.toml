@@ -12,5 +12,8 @@ ansi_term = "0.6.*"
 getopts = "0.2*"
 pcap = "0.4.2"
 
+# local stuff
+# name_of_dependency = { path = "/path/to/dep" }
+
 [[bin]]
 name = "sanchez"

@@ -44,6 +44,8 @@ fn list_devices() {
 }
 
 fn capture() {
+	// uses any (mostly `lo0`) device. pretty useless.
+	// http://stackoverflow.com/a/3746101
 	let mut cap = Capture::from_device(Device::lookup().unwrap()) // open the "default" interface
               .unwrap() // assume the device exists and we are authorized to open it
               .open() // activate the handle
