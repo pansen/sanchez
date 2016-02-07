@@ -1,6 +1,6 @@
 [package]
 
-name = "sanchez - http sniffer"
+name = "CSV file importer"
 version = "0.0.1"
 authors = [ "Andi <andi@zerotired.com>" ]
 
@@ -13,6 +13,7 @@ ansi_term = "0.7"
 # https://github.com/kbknapp/clap-rs
 clap = "2.0.*"
 
+csv = "0.14"
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }
 

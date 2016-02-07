@@ -4,10 +4,13 @@ extern crate fern;
 extern crate time;
 extern crate clap;
 extern crate ansi_term;
+extern crate csv;
 
 mod logging;
+mod csv_import;
+
 use std::process::{exit, };
-use ansi_term::Colour::{Yellow, };
+use ansi_term::Colour::{Yellow, Green, Red, White};
 use clap::{App, Arg};
 
 fn main(){
@@ -23,7 +26,9 @@ fn main(){
     	.get_matches();
 
 	let csv_path = matches.value_of("CSV_PATH").unwrap();
+	debug!("csv path is {}", Green.paint(csv_path));
 
-	debug!("csv path is {}", Yellow.paint(csv_path));
+	csv_import::parse_csv_file(csv_path);
 	exit(0);
 }
+
