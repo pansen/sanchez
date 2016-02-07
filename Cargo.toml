@@ -8,9 +8,10 @@ authors = [ "Andi <andi@zerotired.com>" ]
 log = "0.3.*"
 fern = "0.3.5"
 time = "0.1.25"
-ansi_term = "0.6.*"
-getopts = "0.2*"
-pcap = "0.4.2"
+ansi_term = "0.7"
+
+# https://github.com/kbknapp/clap-rs
+clap = "2.0.*"
 
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }
