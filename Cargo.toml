@@ -14,6 +14,8 @@ ansi_term = "0.7"
 clap = "2.0.*"
 
 csv = "0.14"
+rustc-serialize = "0.3.16"
+
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }
 

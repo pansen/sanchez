@@ -4,7 +4,10 @@ extern crate fern;
 extern crate time;
 extern crate clap;
 extern crate ansi_term;
+
 extern crate csv;
+extern crate rustc_serialize;
+
 
 mod logging;
 mod csv_import;
