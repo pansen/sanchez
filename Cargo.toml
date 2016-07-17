@@ -7,14 +7,17 @@ authors = [ "Andi <andi@zerotired.com>" ]
 [dependencies]
 log = "0.3.*"
 fern = "0.3.5"
-time = "0.1.25"
-ansi_term = "0.7"
+time = "0.1.35"
+ansi_term = "0.7.*"
 
+# options parsing
 # https://github.com/kbknapp/clap-rs
 clap = "2.0.*"
 
-csv = "0.14"
+csv = "0.14.*"
 rustc-serialize = "0.3.16"
+
+diesel = "0.6.*"
 
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }
