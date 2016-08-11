@@ -25,7 +25,7 @@ fn main(){
 	dotenv().ok();
 
     for (key, value) in env::vars().filter(|tuple| tuple.0 == "FOO") {
-    	println!("dotenv: {}: {}", Green.paint(key), value);
+    	println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
     }
 
     let matches = App::new("CSV Importer")
