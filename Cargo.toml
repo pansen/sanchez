@@ -1,6 +1,6 @@
 [package]
 
-name = "CSV file importer"
+name = "Rust Playground"
 version = "0.0.1"
 authors = [ "Andi <andi@zerotired.com>" ]
 
@@ -17,10 +17,8 @@ clap = "2.0.*"
 csv = "0.14.*"
 rustc-serialize = "0.3.16"
 
-diesel = "0.6.*"
-diesel_codegen = { version = "0.6.1", default-features = false, features = ["nightly", "postgres"] }
 dotenv = "0.8.0"
-dotenv_macros = "0.8.0"
+# dotenv_macros = "0.8.0"
 
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }

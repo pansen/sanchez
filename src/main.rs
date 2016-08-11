@@ -6,6 +6,7 @@ extern crate clap;
 extern crate ansi_term;
 
 extern crate csv;
+extern crate dotenv;
 extern crate rustc_serialize;
 
 
@@ -15,9 +16,17 @@ mod csv_import;
 use std::process::{exit, };
 use ansi_term::Colour::{Yellow, Green, Red, White};
 use clap::{App, Arg};
+use dotenv::dotenv;
+use std::env;
+
 
 fn main(){
 	logging::setup_logging();
+	dotenv().ok();
+
+    for (key, value) in env::vars().filter(|tuple| tuple.0 == "FOO") {
+    	println!("dotenv: {}: {}", Green.paint(key), value);
+    }
 
     let matches = App::new("CSV Importer")
 		.version("0.0.1")
