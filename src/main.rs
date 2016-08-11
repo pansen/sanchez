@@ -8,6 +8,7 @@ extern crate ansi_term;
 extern crate csv;
 extern crate dotenv;
 extern crate rustc_serialize;
+extern crate threadpool;
 
 
 mod logging;
@@ -18,6 +19,8 @@ use ansi_term::Colour::{Yellow, Green, Red, White};
 use clap::{App, Arg};
 use dotenv::dotenv;
 use std::env;
+use threadpool::ThreadPool;
+use std::sync::mpsc::channel;
 
 
 fn main(){
@@ -28,19 +31,24 @@ fn main(){
     	println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
     }
 
-    let matches = App::new("CSV Importer")
-		.version("0.0.1")
-		.author("pansen")
-    	.arg(Arg::with_name("CSV_PATH")
-			.help("Sets the path where to look for csv files")
-			.required(true)
-			.index(1))
-    	.get_matches();
 
-	let csv_path = matches.value_of("CSV_PATH").unwrap();
-	debug!("csv path is {}", Green.paint(csv_path));
+	let n_workers = 4;
+	let n_jobs = 8;
+	let pool = ThreadPool::new(n_workers);
 
-	csv_import::parse_csv_file(csv_path);
+	let (tx, rx) = channel();
+	for job in 0..n_jobs {
+	    let tx = tx.clone();
+	    pool.execute(move|| {
+	    	debug!("sending {} from thread", Yellow.paint(job.to_string()));
+	        tx.send(job.to_string()).unwrap();
+	    });
+	}
+
+	for value in rx.iter().take(n_jobs) {
+		debug!("receiving {} from thread", Green.paint(value));
+	}
 	exit(0);
+
 }
 

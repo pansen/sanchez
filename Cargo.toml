@@ -9,6 +9,7 @@ log = "0.3.*"
 fern = "0.3.5"
 time = "0.1.35"
 ansi_term = "0.7.*"
+threadpool = "1.0"
 
 # options parsing
 # https://github.com/kbknapp/clap-rs
