@@ -21,7 +21,8 @@ use dotenv::dotenv;
 use std::env;
 use threadpool::ThreadPool;
 use std::sync::mpsc::channel;
-
+use std::time::Duration;
+use std::thread;
 
 fn main(){
 	logging::setup_logging();
@@ -54,6 +55,7 @@ fn main(){
 	    let tx = tx.clone();
 	    pool.execute(move|| {
 	    	debug!("sending {} from thread", Yellow.paint(job.to_string()));
+	    	thread::sleep(Duration::from_millis(1000));
 	        tx.send(job.to_string()).unwrap();
 	    });
 	}
