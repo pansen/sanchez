@@ -31,9 +31,22 @@ fn main(){
     	println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
     }
 
+	let matches = App::new("Rust Playground")
+	           .version("0.0.1")
+	           .author("pansen")
+	   .arg(Arg::with_name("JOBS")
+	                   .help("How many jobs will be executed")
+	                   .required(true)
+	                   .index(1))
+	   .arg(Arg::with_name("WORKERS")
+	                   .help("How many threads will work the jobs")
+	                   .required(true)
+	                   .index(2))
+	   .get_matches();
+	let n_jobs = matches.value_of("JOBS").unwrap().parse::<usize>().unwrap();
+	let n_workers = matches.value_of("WORKERS").unwrap().parse::<usize>().unwrap();
+	info!("processing {} jobs with {} threads", Yellow.paint(n_jobs.to_string()), Yellow.paint(n_workers.to_string()));
 
-	let n_workers = 4;
-	let n_jobs = 8;
 	let pool = ThreadPool::new(n_workers);
 
 	let (tx, rx) = channel();
