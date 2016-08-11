@@ -19,12 +19,12 @@ struct Record {
 
 /// boilerplate code to setup logging with `fern`
 pub fn parse_csv_file(filename: &str) {
-	let mut reader = Reader::from_file(filename).unwrap()
-		.delimiter(b';')
-		.has_headers(false);
+    let mut reader = Reader::from_file(filename).unwrap()
+        .delimiter(b';')
+        .has_headers(false);
 
     for record in reader.decode() {
-    	let record: Record = record.unwrap();
+        let record: Record = record.unwrap();
         // let (s1, s2, s3): (String, String, String) = record.unwrap();
         debug!("{} {} {}", Yellow.paint(record.depotNr.to_string()), Green.paint(record.wpkn), Yellow.paint(record.name));
     }
@@ -34,8 +34,8 @@ pub fn parse_csv_file(filename: &str) {
 // http://stackoverflow.com/questions/26346154/rust-string-indexing-compare-stri-char
 fn de_to_us(mut de_str: &str) {
     for (i, c) in de_str.chars().enumerate() {
-    	if c == ',' {
-			debug!("found a comma in {}", de_str);
-    	}
+        if c == ',' {
+            debug!("found a comma in {}", de_str);
+        }
     };
 }
