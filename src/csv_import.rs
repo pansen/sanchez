@@ -26,7 +26,8 @@ pub fn parse_csv_file(filename: &str) {
     for record in reader.decode() {
         let record: Record = record.unwrap();
         // let (s1, s2, s3): (String, String, String) = record.unwrap();
-        debug!("{} {} {}", Yellow.paint(record.depotNr.to_string()), Green.paint(record.wpkn), Yellow.paint(record.name));
+        debug!("{} {} {}", Yellow.paint(record.depotNr.to_string()), Green.paint(record.wpkn),
+               Yellow.paint(record.name));
     }
 }
 
