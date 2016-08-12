@@ -12,6 +12,9 @@ ansi_term = "0.7.*"
 threadpool = "1.0"
 id3 = "0.1.10"
 
+# nom = "^1.2.4"
+
+futures = "0.1.*"
 
 # options parsing
 # https://github.com/kbknapp/clap-rs
