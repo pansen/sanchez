@@ -11,7 +11,6 @@ extern crate threadpool;
 
 
 mod logging;
-mod csv_import;
 
 use std::process::{exit, };
 use ansi_term::Colour::{Yellow, Green, Red, White};
