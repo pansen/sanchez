@@ -21,7 +21,7 @@ futures = "0.1.*"
 
 # options parsing
 # https://github.com/kbknapp/clap-rs
-clap = "2.0.*"
+clap = "2.10.*"
 
 # TODO amb: check this too https://github.com/BurntSushi/xsv
 csv = "0.14.*"
