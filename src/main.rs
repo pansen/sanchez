@@ -8,9 +8,12 @@ extern crate csv;
 extern crate dotenv;
 extern crate rustc_serialize;
 extern crate threadpool;
+extern crate walkdir;
 
 
 mod logging;
+mod path;
+
 
 use std::process::{exit, };
 use ansi_term::Colour::{Yellow, Green, Red, White};
@@ -21,6 +24,8 @@ use threadpool::ThreadPool;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 use std::thread;
+use std::fs;
+use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 
 fn main() {
     logging::setup_logging();
@@ -44,7 +49,41 @@ fn main() {
         .get_matches();
     let n_jobs = matches.value_of("JOBS").unwrap().parse::<usize>().unwrap();
     let n_workers = matches.value_of("WORKERS").unwrap().parse::<usize>().unwrap();
-    info!("processing {} jobs with {} threads", Yellow.paint(n_jobs.to_string()), Yellow.paint(n_workers.to_string()));
+    info!("processing {} jobs with {} threads", Green.paint(n_jobs.to_string()),
+          Green.paint(n_workers.to_string()));
+
+
+    let base_path = "./";
+
+    // flat hirachy listing
+    let paths = fs::read_dir(base_path).unwrap();
+
+    for path in paths {
+        info!("flat file: {}", path.unwrap().path().display())
+    }
+
+
+    // recursive listing
+    fn is_hidden(entry: &DirEntry) -> bool {
+        if entry.path().is_dir() {
+            false
+        } else {
+            let real = path::realpath(entry.path());
+            let base = path::basename(entry.path());
+            // debug!("check realpath: `{}`, basename: `{}`", real.to_str().unwrap(),
+            //       base.to_str().unwrap());
+            base.to_str()
+                .map(|s| s.starts_with("."))
+                .unwrap_or(false)
+        }
+    }
+
+    let walker = WalkDir::new(base_path).into_iter();
+    for entry in walker.filter_entry(|e| !is_hidden(e)) {
+        let entry = entry.unwrap();
+        debug!("recursed file: {}", entry.path().display());
+    }
+
 
     let pool = ThreadPool::new(n_workers);
 
@@ -53,7 +92,7 @@ fn main() {
         let tx = tx.clone();
         pool.execute(move || {
             debug!("sending {} from thread", Yellow.paint(job.to_string()));
-            thread::sleep(Duration::from_millis(1000));
+            thread::sleep(Duration::from_millis(100));
             tx.send(job.to_string()).unwrap();
         });
     }
