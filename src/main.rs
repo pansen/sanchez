@@ -26,6 +26,7 @@ use std::time::Duration;
 use std::thread;
 use std::fs;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
+use std::path::{Path};
 
 fn main() {
     logging::setup_logging();
@@ -53,7 +54,7 @@ fn main() {
           Green.paint(n_workers.to_string()));
 
 
-    let base_path = "./";
+    let base_path = "/Users/andi/Dropbox";
 
     // flat hirachy listing
     let paths = fs::read_dir(base_path).unwrap();
@@ -68,7 +69,7 @@ fn main() {
         if entry.path().is_dir() {
             false
         } else {
-            let real = path::realpath(entry.path());
+            // let real = path::realpath(entry.path());
             let base = path::basename(entry.path());
             // debug!("check realpath: `{}`, basename: `{}`", real.to_str().unwrap(),
             //       base.to_str().unwrap());
@@ -77,11 +78,21 @@ fn main() {
                 .unwrap_or(false)
         }
     }
+    fn is_mp3(entry: &DirEntry) -> bool {
+        let base = path::basename(entry.path());
+        base.to_str()
+            .map(|s| s.ends_with(".mp3"))
+            .unwrap_or(false)
+    }
 
+    info!("searching for files in `{}`",
+          Yellow.paint(path::realpath(Path::new(base_path)).to_str().unwrap()));
     let walker = WalkDir::new(base_path).into_iter();
-    for entry in walker.filter_entry(|e| !is_hidden(e)) {
+    for entry in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
         let entry = entry.unwrap();
-        debug!("recursed file: {}", entry.path().display());
+        if !entry.path().is_dir() {
+            debug!("recursed file: {}", entry.path().display());
+        }
     }
 
 
