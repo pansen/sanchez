@@ -14,59 +14,28 @@ extern crate id3;
 
 mod logging;
 mod path;
+mod arguments;
 
 
 use std::process::{exit, };
-use ansi_term::Colour::{Yellow, Green, Red, White};
-use clap::{App, Arg};
-use dotenv::dotenv;
-use std::env;
+use ansi_term::Colour::{Yellow, Green};
 use threadpool::ThreadPool;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 use std::thread;
-use std::fs;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
 use id3::Tag;
 
 fn main() {
     logging::setup_logging();
-    dotenv().ok();
 
-    for (key, value) in env::vars().filter(|tuple| tuple.0 == "FOO") {
-        println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
-    }
-
-    let matches = App::new("Rust Playground")
-        .version("0.0.1")
-        .author("pansen")
-        .arg(Arg::with_name("JOBS")
-            .help("How many jobs will be executed")
-            .required(true)
-            .index(1))
-        .arg(Arg::with_name("WORKERS")
-            .help("How many threads will work the jobs")
-            .required(true)
-            .index(2))
-        .get_matches();
-    let n_jobs = matches.value_of("JOBS").unwrap().parse::<usize>().unwrap();
-    let n_workers = matches.value_of("WORKERS").unwrap().parse::<usize>().unwrap();
-    info!("processing {} jobs with {} threads", Green.paint(n_jobs.to_string()),
-          Green.paint(n_workers.to_string()));
-
-
+    let config = arguments::parse();
+    let n_jobs = config.jobs;
+    let n_workers = config.workers;
     let base_path = "/Users/andi/Dropbox";
 
-    // flat hirachy listing
-    let paths = fs::read_dir(base_path).unwrap();
 
-    for path in paths {
-        info!("flat file: {}", path.unwrap().path().display())
-    }
-
-
-    // recursive listing
     fn is_hidden(entry: &DirEntry) -> bool {
         if entry.path().is_dir() {
             false
@@ -80,6 +49,7 @@ fn main() {
                 .unwrap_or(false)
         }
     }
+
     fn is_mp3(entry: &DirEntry) -> bool {
         let base = path::basename(entry.path());
         base.to_str()
@@ -93,7 +63,7 @@ fn main() {
     for entry in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
         let entry = entry.unwrap();
         if !entry.path().is_dir() {
-            let mut tag = Tag::read_from_path(entry.path()).unwrap();
+            let tag = Tag::read_from_path(entry.path()).unwrap();
             debug!("recursed file from: {} {}",
                    Green.paint(tag.artist().unwrap()), entry.path().display());
         }
