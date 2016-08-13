@@ -30,6 +30,7 @@ use id3::Tag;
 fn main() {
     logging::setup_logging();
 
+    let n_tasks = 4;
     let config = arguments::parse();
     let n_jobs = config.jobs;
     let base_path = config.path;
@@ -69,19 +70,19 @@ fn main() {
     }
 
 
-    let pool = ThreadPool::new(n_workers);
+    let pool = ThreadPool::new(n_jobs);
 
     let (tx, rx) = channel();
-    for job in 0..n_jobs {
+    for task in 0..n_tasks {
         let tx = tx.clone();
         pool.execute(move || {
-            debug!("sending {} from thread", Yellow.paint(job.to_string()));
+            debug!("sending {} from thread", Yellow.paint(task.to_string()));
             thread::sleep(Duration::from_millis(100));
-            tx.send(job.to_string()).unwrap();
+            tx.send(task.to_string()).unwrap();
         });
     }
 
-    for value in rx.iter().take(n_jobs) {
+    for value in rx.iter().take(n_tasks) {
         debug!("receiving {} from thread", Green.paint(value));
     }
     exit(0);
