@@ -9,6 +9,7 @@ extern crate dotenv;
 extern crate rustc_serialize;
 extern crate threadpool;
 extern crate walkdir;
+extern crate id3;
 
 
 mod logging;
@@ -27,6 +28,7 @@ use std::thread;
 use std::fs;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
+use id3::Tag;
 
 fn main() {
     logging::setup_logging();
@@ -91,7 +93,9 @@ fn main() {
     for entry in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
         let entry = entry.unwrap();
         if !entry.path().is_dir() {
-            debug!("recursed file: {}", entry.path().display());
+            let mut tag = Tag::read_from_path(entry.path()).unwrap();
+            debug!("recursed file from: {} {}",
+                   Green.paint(tag.artist().unwrap()), entry.path().display());
         }
     }
 
