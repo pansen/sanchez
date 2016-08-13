@@ -7,8 +7,8 @@ use ansi_term::Colour::{Green, White};
 pub struct AppConfig {
     /// how many jobs to process
     pub jobs: usize,
-    /// how many workers (threads) we shall use
-    pub workers: usize,
+    /// which path to parse
+    pub path: String,
 }
 
 /// parses the given arguments our app
@@ -23,17 +23,25 @@ pub fn parse() -> AppConfig {
         .version("0.0.1")
         .author("pansen")
         .arg(Arg::with_name("JOBS")
-            .help("How many jobs will be executed")
+            .short("j")
+            .long("jobs")
+            .value_name("JOBS")
+            .help("How many jobs (threads) in parallel should be ran.")
+            .required(false)
+            .takes_value(true))
+        .arg(Arg::with_name("PATH")
+            .help("Which path to parse")
             .required(true)
             .index(1))
-        .arg(Arg::with_name("WORKERS")
-            .help("How many threads will work the jobs")
-            .required(true)
-            .index(2))
         .get_matches();
-    let n_jobs = matches.value_of("JOBS").unwrap().parse::<usize>().unwrap();
-    let n_workers = matches.value_of("WORKERS").unwrap().parse::<usize>().unwrap();
-    info!("processing {} jobs with {} threads", Green.paint(n_jobs.to_string()),
-          Green.paint(n_workers.to_string()));
-    AppConfig { jobs: n_jobs, workers: n_workers }
+    let n_jobs = matches.value_of("JOBS").unwrap_or("1").parse::<usize>().unwrap();
+    //    if let Some(ref n_jobs) = matches.value_of("JOBS").unwrap_or("1") {
+    //        println!("number of jobs: {}", n_jobs);
+    //    }
+    let search_path = matches.value_of("PATH").unwrap();
+    info!("processing path `{}` with {} threads",
+          Green.paint(search_path.to_string()),
+          Green.paint(n_jobs.to_string())
+    );
+    AppConfig { jobs: n_jobs, path: search_path.to_string() }
 }

@@ -32,8 +32,7 @@ fn main() {
 
     let config = arguments::parse();
     let n_jobs = config.jobs;
-    let n_workers = config.workers;
-    let base_path = "/Users/andi/Dropbox";
+    let base_path = config.path;
 
 
     fn is_hidden(entry: &DirEntry) -> bool {
@@ -58,8 +57,8 @@ fn main() {
     }
 
     info!("searching for files in `{}`",
-          Yellow.paint(path::realpath(Path::new(base_path)).to_str().unwrap()));
-    let walker = WalkDir::new(base_path).into_iter();
+          Yellow.paint(path::realpath(Path::new(&base_path)).to_str().unwrap()));
+    let walker = WalkDir::new(&base_path).into_iter();
     for entry in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
         let entry = entry.unwrap();
         if !entry.path().is_dir() {
