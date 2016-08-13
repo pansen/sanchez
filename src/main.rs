@@ -60,29 +60,27 @@ fn main() {
     info!("searching for files in `{}`",
           Yellow.paint(path::realpath(Path::new(&base_path)).to_str().unwrap()));
     let walker = WalkDir::new(&base_path).into_iter();
-    for entry in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
-        let entry = entry.unwrap();
-        if !entry.path().is_dir() {
-            let tag = Tag::read_from_path(entry.path()).unwrap();
-            debug!("recursed file from: {} {}",
-                   Green.paint(tag.artist().unwrap()), entry.path().display());
+    let pool = ThreadPool::new(n_jobs);
+    let (tx, rx) = channel();
+    let mut counter = 0;
+
+    for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
+        let file_ = file_.unwrap();
+        if !file_.path().is_dir() {
+            counter = counter + 1;
+            let tx = tx.clone();
+            pool.execute(move || {
+                debug!("sending {} from thread", Yellow.paint(counter.to_string()));
+                //let tag = Tag::read_from_path(file_.path()).unwrap();
+                let artist_name = counter.to_string();// tag.artist().unwrap();
+                debug!("recursed file from: {} {}",
+                       Green.paint(artist_name), file_.path().display());
+                tx.send(counter.to_string()).unwrap();
+            });
         }
     }
 
-
-    let pool = ThreadPool::new(n_jobs);
-
-    let (tx, rx) = channel();
-    for task in 0..n_tasks {
-        let tx = tx.clone();
-        pool.execute(move || {
-            debug!("sending {} from thread", Yellow.paint(task.to_string()));
-            thread::sleep(Duration::from_millis(100));
-            tx.send(task.to_string()).unwrap();
-        });
-    }
-
-    for value in rx.iter().take(n_tasks) {
+    for value in rx.iter().take(counter) {
         debug!("receiving {} from thread", Green.paint(value));
     }
     exit(0);
