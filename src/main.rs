@@ -71,12 +71,10 @@ fn main() {
             let tx = tx.clone();
 
             pool.execute(move || {
-                debug!("sending {} from thread", Yellow.paint(counter.to_string()));
-
                 let tag = Tag::read_from_path(file_.path()).unwrap();
                 let a_name = tag.artist().unwrap();
 
-                debug!("recursed file from: {} {}",
+                debug!("{} recursed file from: {} {}", Yellow.paint(counter.to_string())
                        Green.paint(a_name), file_.path().display());
                 tx.send(a_name.to_owned()).unwrap();
             });
