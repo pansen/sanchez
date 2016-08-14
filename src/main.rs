@@ -69,13 +69,19 @@ fn main() {
         if !file_.path().is_dir() {
             counter = counter + 1;
             let tx = tx.clone();
+
             pool.execute(move || {
                 debug!("sending {} from thread", Yellow.paint(counter.to_string()));
-                //let tag = Tag::read_from_path(file_.path()).unwrap();
-                let artist_name = counter.to_string();// tag.artist().unwrap();
+
+                let tag = Tag::read_from_path(file_.path()).unwrap();
+                let a_name = tag.artist().unwrap();
+
                 debug!("recursed file from: {} {}",
-                       Green.paint(artist_name), file_.path().display());
-                tx.send(counter.to_string()).unwrap();
+                       Green.paint(a_name), file_.path().display());
+
+                tx.send(".").unwrap();
+                // TODO amb: not working..
+                // tx.send(a_name).unwrap();
             });
         }
     }
