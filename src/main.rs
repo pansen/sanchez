@@ -78,10 +78,7 @@ fn main() {
 
                 debug!("recursed file from: {} {}",
                        Green.paint(a_name), file_.path().display());
-
-                tx.send(".").unwrap();
-                // TODO amb: not working..
-                // tx.send(a_name).unwrap();
+                tx.send(a_name.to_owned()).unwrap();
             });
         }
     }
