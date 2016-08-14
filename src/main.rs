@@ -67,7 +67,7 @@ fn main() {
     for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
         let file_ = file_.unwrap();
         if !file_.path().is_dir() {
-            counter = counter + 1;
+            counter += 1;
             let tx = tx.clone();
 
             pool.execute(move || {
