@@ -21,8 +21,6 @@ use std::process::{exit, };
 use ansi_term::Colour::{Yellow, Green};
 use threadpool::ThreadPool;
 use std::sync::mpsc::channel;
-use std::time::Duration;
-use std::thread;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
 use id3::Tag;
@@ -30,7 +28,6 @@ use id3::Tag;
 fn main() {
     logging::setup_logging();
 
-    let n_tasks = 4;
     let config = arguments::parse();
     let n_jobs = config.jobs;
     let base_path = config.path;
@@ -67,21 +64,31 @@ fn main() {
     for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
         let file_ = file_.unwrap();
         if !file_.path().is_dir() {
-            counter += 1;
             let tx = tx.clone();
+            counter += 1;
 
             pool.execute(move || {
-                let tag = Tag::read_from_path(file_.path()).unwrap();
-                let a_name = tag.artist().unwrap();
-
-                debug!("{} recursed file from: {} {}", Yellow.paint(counter.to_string()),
-                       Green.paint(a_name), file_.path().display());
-                tx.send(a_name.to_owned()).unwrap();
+                match Tag::read_from_path(file_.path()) {
+                    Err(why) => warn!("{:?}, failed to read: {:?}", why, file_.path()),
+                    Ok(tag) => {
+                        match tag.artist() {
+                            None => warn!("failed to extract artist: {:?}", file_.path()),
+                            Some(a_name) => {
+                                // only count successful ones
+                                debug!("{} recursed file from: {} {}", Yellow.paint(counter.to_string()),
+                                       Green.paint(a_name), file_.path().display());
+                                tx.send(a_name.to_owned()).unwrap();
+                            }
+                        }
+                    },
+                };
+                drop(tx);
             });
         }
     }
+    drop(tx);
 
-    for value in rx.iter().take(counter) {
+    for value in rx.iter() {
         debug!("receiving {} from thread", Green.paint(value));
     }
     exit(0);
