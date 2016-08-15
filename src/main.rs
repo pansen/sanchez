@@ -18,7 +18,7 @@ mod arguments;
 
 
 use std::process::{exit, };
-use ansi_term::Colour::{Yellow, Green};
+use ansi_term::Colour::{Yellow, Green, Red};
 use threadpool::ThreadPool;
 use std::sync::mpsc::channel;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
@@ -75,8 +75,12 @@ fn main() {
                             None => warn!("failed to extract artist: {:?}", file_.path()),
                             Some(a_name) => {
                                 // only count successful ones
-                                debug!("{} recursed file from: {} {}", Yellow.paint(counter.to_string()),
-                                       Green.paint(a_name), file_.path().display());
+                                debug!("{} recursed file from: {} - {} {} {}",
+                                       Yellow.paint(counter.to_string()),
+                                       Green.paint(a_name),
+                                       Green.paint(tag.title().unwrap()),
+                                       Red.paint(tag.album().unwrap()),
+                                       file_.path().display());
                                 tx.send(a_name.to_owned()).unwrap();
                             }
                         }
