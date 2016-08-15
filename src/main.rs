@@ -25,6 +25,14 @@ use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
 use id3::Tag;
 
+/// Channel struct for found tracks
+pub struct FoundTrack {
+    /// path of that file
+    pub path: String,
+    pub title: String,
+    pub album: String
+}
+
 fn main() {
     logging::setup_logging();
 
@@ -71,17 +79,19 @@ fn main() {
                 match Tag::read_from_path(file_.path()) {
                     Err(why) => warn!("{:?}, failed to read: {:?}", why, file_.path()),
                     Ok(tag) => {
-                        match tag.artist() {
-                            None => warn!("failed to extract artist: {:?}", file_.path()),
-                            Some(a_name) => {
-                                // only count successful ones
-                                debug!("{} recursed file from: {} - {} {} {}",
+                        match tag.title() {
+                            None => warn!("failed to extract title: {:?}", file_.path()),
+                            Some(track_title) => {
+                                let track_album = tag.album().unwrap();
+                                debug!("{} recursed file: {}",
                                        Yellow.paint(counter.to_string()),
-                                       Green.paint(a_name),
-                                       Green.paint(tag.title().unwrap()),
-                                       Red.paint(tag.album().unwrap()),
                                        file_.path().display());
-                                tx.send(a_name.to_owned()).unwrap();
+                                let found = FoundTrack {
+                                    path: file_.path().display().to_string(),
+                                    title: track_title.to_owned(),
+                                    album: track_album.to_owned()
+                                };
+                                tx.send(found).unwrap();
                             }
                         }
                     },
@@ -93,7 +103,10 @@ fn main() {
     drop(tx);
 
     for value in rx.iter() {
-        debug!("receiving {} from thread", Green.paint(value));
+        debug!("receiving {} - {} from thread",
+               Red.paint(value.album),
+               Green.paint(value.title),
+        );
     }
     exit(0);
 }
