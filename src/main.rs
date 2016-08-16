@@ -79,6 +79,15 @@ fn main() {
 
             pool.execute(move || {
                 match Tag::read_from_path(file_.path()) {
+                    Err(why) => {
+                        warn!("{:?}, failed to read: {:?}", why, file_.path());
+                        let found = FoundTrack {
+                            path: file_.path().display().to_string(),
+                            title: path::basename(file_.path()).display().to_string(),
+                            album: "".to_string()
+                        };
+                        tx.send(found).unwrap();
+                    },
                     Ok(tag) => {
                         match tag.title() {
                             None => warn!("failed to extract title: {:?}", file_.path()),
@@ -95,15 +104,7 @@ fn main() {
                                 tx.send(found).unwrap();
                             }
                         }
-                    Err(why) => {
-                        warn!("{:?}, failed to read: {:?}", why, file_.path());
-                        let found = FoundTrack {
-                            path: file_.path().display().to_string(),
-                            title: path::basename(file_.path()).display().to_string(),
-                            album: "".to_string()
-                        };
-                        tx.send(found).unwrap();
-                    },
+                    }
                 };
                 drop(tx);
             });
