@@ -1,9 +1,21 @@
 use fern;
 use log;
 use time;
+use arguments::AppConfig;
 
+#[allow(unused_assignments)]
 /// boilerplate code to setup logging with `fern`
-pub fn setup_logging() {
+pub fn setup_logging(config: &AppConfig) {
+    let mut log_level = log::LogLevelFilter::Off;
+
+    match config.verbose {
+        0 => log_level = log::LogLevelFilter::Error,
+        1 => log_level = log::LogLevelFilter::Warn,
+        2 => log_level = log::LogLevelFilter::Info,
+        3 => log_level = log::LogLevelFilter::Debug,
+        _ => log_level = log::LogLevelFilter::Trace
+    }
+
     let logger_config = fern::DispatchConfig {
         format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
             // This is a fairly simple format, though it's possible to do more complicated ones.
@@ -13,10 +25,10 @@ pub fn setup_logging() {
         }),
         // add a file-output: ``, fern::OutputConfig::file("output.log")``
         output: vec![fern::OutputConfig::stdout()],
-        level: log::LogLevelFilter::Trace,
+        level: log_level,
     };
 
-    if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Trace) {
+    if let Err(e) = fern::init_global_logger(logger_config, log_level) {
         panic!("Failed to initialize global logger: {}", e);
     }
 }

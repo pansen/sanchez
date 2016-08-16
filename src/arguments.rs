@@ -9,6 +9,8 @@ pub struct AppConfig {
     pub jobs: usize,
     /// which path to parse
     pub path: String,
+    /// level of verbosity
+    pub verbose: usize,
 }
 
 /// parses the given arguments our app
@@ -29,6 +31,12 @@ pub fn parse() -> AppConfig {
             .help("How many jobs (threads) in parallel should be ran.")
             .required(false)
             .takes_value(true))
+        .arg(Arg::with_name("VERBOSE")
+            .short("v")
+            .help("Verbosity level (repeat for even more verbosity).")
+            .multiple(true)
+            .required(false)
+            .takes_value(false))
         .arg(Arg::with_name("PATH")
             .help("Which path to parse")
             .required(true)
@@ -38,10 +46,21 @@ pub fn parse() -> AppConfig {
     //    if let Some(ref n_jobs) = matches.value_of("JOBS").unwrap_or("1") {
     //        println!("number of jobs: {}", n_jobs);
     //    }
+
     let search_path = matches.value_of("PATH").unwrap();
     info!("processing path `{}` with {} threads",
           Green.paint(search_path.to_string()),
           Green.paint(n_jobs.to_string())
     );
-    AppConfig { jobs: n_jobs, path: search_path.to_string() }
+
+    let mut verbosity = 0;
+    match matches.occurrences_of("VERBOSE") {
+        0 => verbosity = 0,
+        1 => verbosity = 1,
+        2 => verbosity = 2,
+        3 => verbosity = 3,
+        _ => verbosity = 4
+    }
+
+    AppConfig { jobs: n_jobs, path: search_path.to_string(), verbose: verbosity }
 }

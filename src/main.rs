@@ -1,5 +1,6 @@
 #[macro_use] extern crate log;
 extern crate fern;
+
 extern crate time;
 extern crate clap;
 extern crate ansi_term;
@@ -34,9 +35,10 @@ pub struct FoundTrack {
 }
 
 fn main() {
-    logging::setup_logging();
-
     let config = arguments::parse();
+
+    logging::setup_logging(&config);
+
     let n_jobs = config.jobs;
     let base_path = config.path;
 
