@@ -11,6 +11,8 @@ pub struct AppConfig {
     pub path: String,
     /// level of verbosity
     pub verbose: usize,
+    /// enable directory watching
+    pub watch: bool,
 }
 
 /// parses the given arguments our app
@@ -35,6 +37,12 @@ pub fn parse() -> AppConfig {
             .short("v")
             .help("Verbosity level (repeat for even more verbosity).")
             .multiple(true)
+            .required(false)
+            .takes_value(false))
+        .arg(Arg::with_name("WATCH")
+            .short("w")
+            .long("watch")
+            .help("Enable watcher for changes in the given path.")
             .required(false)
             .takes_value(false))
         .arg(Arg::with_name("PATH")
@@ -62,5 +70,11 @@ pub fn parse() -> AppConfig {
         _ => verbosity = 4
     }
 
-    AppConfig { jobs: n_jobs, path: search_path.to_string(), verbose: verbosity }
+    let mut watch = false;
+    match matches.occurrences_of("WATCH") {
+        1 => watch = true,
+        _ => ()
+    }
+
+    AppConfig { jobs: n_jobs, path: search_path.to_string(), verbose: verbosity, watch: watch }
 }

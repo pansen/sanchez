@@ -27,8 +27,11 @@ fn main() {
 
     logging::setup_logging(&config);
 
-    watch::watch_reference(&config);
     // scan::scanner(&config);
+    if config.watch == true {
+        watch::watch_reference(&config);
+    }
+
 
     exit(0);
 }
