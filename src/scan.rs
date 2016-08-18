@@ -2,7 +2,7 @@ use path;
 use arguments::AppConfig;
 use ansi_term::Colour::{Yellow, Green, Red};
 use threadpool::ThreadPool;
-use std::sync::mpsc::channel;
+use std::sync::mpsc;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
 use id3::Tag;
@@ -40,7 +40,7 @@ impl Scanner {
         info!("searching for files in `{}`",
               Yellow.paint(path::realpath(Path::new(&self.base_path)).to_str().unwrap()));
         let walker = WalkDir::new(&self.base_path).into_iter();
-        let (tx, rx) = channel();
+        let (tx, rx) = mpsc::channel();
         let mut counter = 0;
 
         for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
@@ -50,35 +50,7 @@ impl Scanner {
                 counter += 1;
 
                 self.thread_pool.execute(move || {
-                    match Tag::read_from_path(file_.path()) {
-                        Err(why) => {
-                            warn!("{:?}, failed to read: {:?}", why, file_.path());
-                            let found = FoundTrack {
-                                path: file_.path().display().to_string(),
-                                title: path::basename(file_.path()).display().to_string(),
-                                album: "".to_string()
-                            };
-                            tx.send(found).unwrap();
-                        },
-                        Ok(tag) => {
-                            match tag.title() {
-                                None => warn!("failed to extract title: {:?}", file_.path()),
-                                Some(track_title) => {
-                                    let track_album = tag.album().unwrap();
-                                    debug!("{} recursed file: {}",
-                                           Yellow.paint(counter.to_string()),
-                                           file_.path().display());
-                                    let found = FoundTrack {
-                                        path: file_.path().display().to_string(),
-                                        title: track_title.to_owned(),
-                                        album: track_album.to_owned()
-                                    };
-                                    tx.send(found).unwrap();
-                                }
-                            }
-                        }
-                    };
-                    drop(tx);
+                    extract_tag(&file_.path(), &tx)
                 });
             }
         }
@@ -97,39 +69,13 @@ impl Scanner {
     pub fn scan_file(&self, path_name: &str) {
         info!("scan single file `{}`", Yellow.paint(path_name));
         let path_name_copy = path_name.to_owned();
-        let (tx, rx) = channel();
+        let (tx, rx) = mpsc::channel();
 
         self.thread_pool.execute(move || {
             let path = Path::new(&path_name_copy);
             if !path.is_dir() {
-                match Tag::read_from_path(path) {
-                    Err(why) => {
-                        warn!("{:?}, failed to read: {:?}", why, path);
-                        let found = FoundTrack {
-                            path: path.display().to_string(),
-                            title: path::basename(path).display().to_string(),
-                            album: "".to_string()
-                        };
-                        tx.send(found).unwrap();
-                    },
-                    Ok(tag) => {
-                        match tag.title() {
-                            None => warn!("failed to extract title: {:?}", path),
-                            Some(track_title) => {
-                                let track_album = tag.album().unwrap();
-                                debug!("parse single file: {}", path.display());
-                                let found = FoundTrack {
-                                    path: path.display().to_string(),
-                                    title: track_title.to_owned(),
-                                    album: track_album.to_owned()
-                                };
-                                tx.send(found).unwrap();
-                            }
-                        }
-                    }
-                };
+                extract_tag(&path, &tx);
             }
-            drop(tx);
         });
 
         for value in rx.iter() {
@@ -162,3 +108,33 @@ fn is_mp3(entry: &DirEntry) -> bool {
         .unwrap_or(false)
 }
 
+/// encapsulates the tag-extraction logic
+fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
+    match Tag::read_from_path(path) {
+        Err(why) => {
+            warn!("{:?}, failed to read: {:?}", why, path);
+            let found = FoundTrack {
+                path: path.display().to_string(),
+                title: path::basename(path).display().to_string(),
+                album: "".to_string()
+            };
+            tx_.send(found).unwrap();
+        },
+        Ok(tag) => {
+            match tag.title() {
+                None => warn!("failed to extract title: {:?}", path),
+                Some(track_title) => {
+                    let track_album = tag.album().unwrap();
+                    debug!("recursed file: {}", path.display());
+                    let found = FoundTrack {
+                        path: path.display().to_string(),
+                        title: track_title.to_owned(),
+                        album: track_album.to_owned()
+                    };
+                    tx_.send(found).unwrap();
+                }
+            }
+        }
+    };
+    drop(tx_);
+}
