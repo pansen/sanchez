@@ -5,11 +5,12 @@ use std::thread;
 use notify::{RecommendedWatcher, Watcher};
 use std::sync::mpsc::channel;
 use arguments::AppConfig;
+use scan::Scanner;
 use ansi_term::Colour::{Green, Yellow};
 
 
 /// watcher function to check one directory for changes
-pub fn watch_reference(config: &AppConfig) -> notify::Result<()> {
+pub fn watch_reference(config: &AppConfig, scanner: &Scanner) -> notify::Result<()> {
     // Create a channel to receive the events.
     let (tx, rx) = channel();
 
@@ -28,6 +29,7 @@ pub fn watch_reference(config: &AppConfig) -> notify::Result<()> {
         match rx.recv() {
             Ok(notify::Event { path: Some(path), op: Ok(op) }) => {
                 info!("{:?} {:?}", op, path);
+                scanner.scan_file(path.as_path().to_str().unwrap());
             },
             Err(e) => error!("watch error {}", e),
             _ => ()

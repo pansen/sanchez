@@ -9,7 +9,7 @@ use id3::Tag;
 
 
 /// Channel struct for found tracks
-pub struct FoundTrack {
+struct FoundTrack {
     /// path of that file
     pub path: String,
     pub title: String,
@@ -85,7 +85,55 @@ impl Scanner {
         drop(tx);
 
         for value in rx.iter() {
-            debug!("receiving {} - {} from thread",
+            debug!("[recursive] receiving {} - {} from thread",
+                   Red.paint(value.album),
+                   Green.paint(value.title),
+            );
+        }
+    }
+
+    /// re-scan a given file
+    /// TODO amb: merge the threaded part to be in one place from `scan_all` and `scan_file`
+    pub fn scan_file(&self, path_name: &str) {
+        info!("scan single file `{}`", Yellow.paint(path_name));
+        let path_name_copy = path_name.to_owned();
+        let (tx, rx) = channel();
+
+        self.thread_pool.execute(move || {
+            let path = Path::new(&path_name_copy);
+            if !path.is_dir() {
+                match Tag::read_from_path(path) {
+                    Err(why) => {
+                        warn!("{:?}, failed to read: {:?}", why, path);
+                        let found = FoundTrack {
+                            path: path.display().to_string(),
+                            title: path::basename(path).display().to_string(),
+                            album: "".to_string()
+                        };
+                        tx.send(found).unwrap();
+                    },
+                    Ok(tag) => {
+                        match tag.title() {
+                            None => warn!("failed to extract title: {:?}", path),
+                            Some(track_title) => {
+                                let track_album = tag.album().unwrap();
+                                debug!("parse single file: {}", path.display());
+                                let found = FoundTrack {
+                                    path: path.display().to_string(),
+                                    title: track_title.to_owned(),
+                                    album: track_album.to_owned()
+                                };
+                                tx.send(found).unwrap();
+                            }
+                        }
+                    }
+                };
+            }
+            drop(tx);
+        });
+
+        for value in rx.iter() {
+            debug!("[single] receiving {} - {} from thread",
                    Red.paint(value.album),
                    Green.paint(value.title),
             );

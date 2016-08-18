@@ -28,12 +28,11 @@ fn main() {
     logging::setup_logging(&config);
 
     let scanner = scan::Scanner::new(&config);
+    scanner.scan_all();
 
     if config.watch == true {
-        watch::watch_reference(&config);
+        watch::watch_reference(&config, &scanner);
     }
-
-    scanner.scan_all();
 
     exit(0);
 }
