@@ -23,6 +23,8 @@ futures = "0.1.*"
 # https://github.com/kbknapp/clap-rs
 clap = "2.10.*"
 
+notify = "2.6.*"
+
 # TODO amb: check this too https://github.com/BurntSushi/xsv
 csv = "0.14.*"
 
