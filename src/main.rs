@@ -18,6 +18,7 @@ mod logging;
 mod path;
 mod arguments;
 mod scan;
+mod watch;
 
 use std::process::{exit, };
 
@@ -26,7 +27,8 @@ fn main() {
 
     logging::setup_logging(&config);
 
-    scan::scanner(&config);
+    watch::watch_reference(&config);
+    // scan::scanner(&config);
 
     exit(0);
 }
