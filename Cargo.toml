@@ -17,7 +17,7 @@ walkdir = "0.1.*"
 
 # nom = "^1.2.4"
 
-futures = "0.1.*"
+# futures = "0.1.*"
 
 # options parsing
 # https://github.com/kbknapp/clap-rs
