@@ -41,13 +41,11 @@ impl Scanner {
               Yellow.paint(path::realpath(Path::new(&self.base_path)).to_str().unwrap()));
         let walker = WalkDir::new(&self.base_path).into_iter();
         let (tx, rx) = mpsc::channel();
-        let mut counter = 0;
 
         for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
             let file_ = file_.unwrap();
             if !file_.path().is_dir() {
                 let tx = tx.clone();
-                counter += 1;
 
                 self.thread_pool.execute(move || {
                     extract_tag(&file_.path(), &tx)
@@ -112,7 +110,7 @@ fn is_mp3(entry: &DirEntry) -> bool {
 fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
     match Tag::read_from_path(path) {
         Err(why) => {
-            warn!("{:?}, failed to read: {:?}", why, path);
+            error!("{:?}, failed to read: {:?}", why, path);
             let found = FoundTrack {
                 path: path.display().to_string(),
                 title: path::basename(path).display().to_string(),
@@ -125,7 +123,7 @@ fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
                 None => warn!("failed to extract title: {:?}", path),
                 Some(track_title) => {
                     let track_album = tag.album().unwrap();
-                    debug!("recursed file: {}", path.display());
+                    debug!("extracted file: {}", path.display());
                     let found = FoundTrack {
                         path: path.display().to_string(),
                         title: track_title.to_owned(),
