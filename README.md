@@ -1,6 +1,22 @@
-### Links
+# Sanchez
 
-- https://github.com/ebfull/pcap/blob/master/src/lib.rs
+Rust playground project.
+
+Currently finds `*.mp3` files in a given directory and parses them ID3 tags. The
+parsing can be done multithreaded, defining the number of threads with the `-j`
+option.
+
+Besides the "scanner" functionality there is also a "watcher", which watches the
+exact same given directory for file changes, resulting in the same ID3 extraction
+process.
+
+## Run
+```
+cargo build
+time cargo run -- ~/Music -j4 -vvv -w)
+```
+
+### Links
 
 #### Threads
 
