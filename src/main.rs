@@ -1,55 +1,55 @@
-#[macro_use]
-extern crate log;
+#[macro_use] extern crate log;
 extern crate fern;
+
 extern crate time;
-extern crate pcap;
-extern crate getopts;
+extern crate clap;
 extern crate ansi_term;
 
-use std::env;
+extern crate csv;
+extern crate dotenv;
+extern crate rustc_serialize;
+extern crate threadpool;
+extern crate walkdir;
+extern crate id3;
+extern crate notify;
+
+
 mod logging;
-mod options;
-use std::process::{Command, exit};
-use ansi_term::Colour::{Yellow, Red, };
-use pcap::{Capture, Device};
+mod path;
+mod arguments;
+mod scan;
+mod watch;
 
-fn main(){
-	logging::setup_logging();
-	let command:options::Command;
+use std::process::{exit, };
+use std::thread;
+use std::vec::Vec;
 
-    match options::parse_commandline_options(&env::args().collect()) {
-        Ok(c) => {command = c;}
-        Err(f) => { panic!("panic: {:?}", f) }
-    };
+fn main() {
+    let config = arguments::parse();
 
-	if command.list == true {
-		list_devices();
-		exit(0);
-	}
-	capture();
-}
+    logging::setup_logging(&config);
 
-fn list_devices() {
-	let devices = pcap::Device::list().ok().expect("Failed to list devices");
+    let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 
-	if devices.len() > 0 {
-		println!("Found {} devices:", Yellow.paint(&devices.len().to_string()));
-	    for device in devices {
-	        println!("- {}", Yellow.paint(&device.name.to_string()));
-	    }
-	} else {
-		println!("{}", Red.paint("No devices found."));
-		exit(1);
-	}
-}
+    if config.watch == true {
+        let config = config.clone();
+        // TODO amb: would be nicer to share only *one* `Scanner` here, but i don't know how exactly
+        let scanner_thread = scan::Scanner::new(&config);
 
-fn capture() {
-	let mut cap = Capture::from_device(Device::lookup().unwrap()) // open the "default" interface
-              .unwrap() // assume the device exists and we are authorized to open it
-              .open() // activate the handle
-              .unwrap(); // assume activation worked
-
-    while let Some(packet) = cap.next() {
-        println!("received packet! {:?}", packet);
+        watcher_handles.push(thread::spawn(move || {
+            let _ = watch::watch_reference(&config, &scanner_thread);
+        }));
     }
+
+    let scanner = scan::Scanner::new(&config);
+    scanner.scan_all();
+
+    // after the scanner is done, we just join the watcher thread to avoid the mainthread to exit
+    // creating a channel could also be done, but seems like overhead here
+    // http://stackoverflow.com/a/26200583/2741111
+    for handle in watcher_handles {
+        let _ = handle.join();
+    }
+    exit(0);
 }
+

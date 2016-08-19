@@ -1,16 +1,37 @@
 [package]
 
-name = "sanchez - http sniffer"
+name = "Rust Playground"
 version = "0.0.1"
 authors = [ "Andi <andi@zerotired.com>" ]
 
 [dependencies]
 log = "0.3.*"
 fern = "0.3.5"
-time = "0.1.25"
-ansi_term = "0.6.*"
-getopts = "0.2*"
-pcap = "0.4.2"
+time = "0.1.35"
+ansi_term = "0.7.*"
+threadpool = "1.3.*"
+dotenv = "0.8.0"
+# dotenv_macros = "0.8.0"
+id3 = "0.1.10"
+walkdir = "0.1.*"
+
+# nom = "^1.2.4"
+
+# futures = "0.1.*"
+
+# options parsing
+# https://github.com/kbknapp/clap-rs
+clap = "2.10.*"
+
+notify = "2.6.*"
+
+# TODO amb: check this too https://github.com/BurntSushi/xsv
+csv = "0.14.*"
+
+rustc-serialize = "0.3.16"
+
+# local stuff
+# name_of_dependency = { path = "/path/to/dep" }
 
 [[bin]]
 name = "sanchez"
