@@ -10,11 +10,21 @@ Besides the "scanner" functionality there is also a "watcher", which watches the
 exact same given directory for file changes, resulting in the same ID3 extraction
 process.
 
-## Run
+## Build & Run
+
+Since some dependencies require the unstable `Plugin` feature, we need to have
+a nightly version of Rust installed. The easiest way is using
+[`rustup`](https://www.rustup.rs/)
+
 ```
+rustup install nightly
+rustup default nightly
+
 cargo build
-time cargo run -- ~/Music -j4 -vvv -w)
+time cargo run -- ~/Music -j4 -vvv -w
 ```
+
+see: https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust
 
 ### Links
 
