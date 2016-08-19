@@ -4,6 +4,8 @@ use std::env;
 use ansi_term::Colour::{Green, White};
 
 /// App Config
+/// this is marked as clonable (implements `std::clone::Clone`)
+#[derive(Clone, Debug)]
 pub struct AppConfig {
     /// how many jobs to process
     pub jobs: usize,

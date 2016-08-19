@@ -1,12 +1,9 @@
 use notify;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::sync_channel;
-use std::thread;
 use notify::{RecommendedWatcher, Watcher};
 use std::sync::mpsc::channel;
 use arguments::AppConfig;
 use scan::Scanner;
-use ansi_term::Colour::{Green, Yellow};
+use ansi_term::Colour::{Green};
 
 
 /// watcher function to check one directory for changes
