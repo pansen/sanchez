@@ -21,7 +21,7 @@ rustup install nightly
 rustup default nightly
 
 cargo build
-time cargo run -- ~/Music -j4 -vvv -w
+time cargo run -- ~/Music -j4 -vv -w
 ```
 
 see: https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust
