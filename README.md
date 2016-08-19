@@ -25,3 +25,4 @@ time cargo run -- ~/Music -j4 -vvv -w)
 #### Strings
 
 - [Rust Strings](http://www.steveklabnik.com/rust-issue-17340/)
+- [string vs. str](http://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html)
