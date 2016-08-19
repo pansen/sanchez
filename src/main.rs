@@ -12,6 +12,7 @@ extern crate threadpool;
 extern crate walkdir;
 extern crate id3;
 extern crate notify;
+extern crate crypto;
 
 
 mod logging;

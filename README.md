@@ -26,7 +26,12 @@ time cargo run -- ~/Music -j4 -vvv -w
 
 see: https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust
 
+
 ### Links
+
+#### Environment
+
+- [`rustup` announcement](https://blog.rust-lang.org/2016/05/13/rustup.html)
 
 #### Threads
 
@@ -36,3 +41,8 @@ see: https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust
 
 - [Rust Strings](http://www.steveklabnik.com/rust-issue-17340/)
 - [string vs. str](http://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html)
+
+#### Crypto
+
+- http://siciarz.net/24-days-of-rust-rust-crypto/
+

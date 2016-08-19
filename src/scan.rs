@@ -6,6 +6,11 @@ use std::sync::mpsc;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
 use id3::Tag;
+use crypto::digest::Digest;
+use crypto::sha2::Sha512;
+use std::io;
+use std::io::prelude::*;
+use std::fs::File;
 
 
 /// Channel struct for found tracks
@@ -13,7 +18,9 @@ struct FoundTrack {
     /// path of that file
     pub path: String,
     pub title: String,
-    pub album: String
+    pub album: String,
+    /// hash of the parsed file
+    pub hash: String
 }
 
 
@@ -108,13 +115,23 @@ fn is_mp3(entry: &DirEntry) -> bool {
 
 /// encapsulates the tag-extraction logic
 fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
+    let mut sha = Sha512::new();
+    let mut f = File::open(path).unwrap();
+    let mut buffer = Vec::new();
+
+    let _ = f.read_to_end(&mut buffer);
+    sha.input(buffer.as_slice());
+
+    let hash = sha.result_str();
+
     match Tag::read_from_path(path) {
         Err(why) => {
             error!("{:?}, failed to read: {:?}", why, path);
             let found = FoundTrack {
                 path: path.display().to_string(),
                 title: path::basename(path).display().to_string(),
-                album: "".to_string()
+                album: "".to_string(),
+                hash: hash.to_owned()
             };
             tx_.send(found).unwrap();
         },
@@ -127,7 +144,8 @@ fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
                     let found = FoundTrack {
                         path: path.display().to_string(),
                         title: track_title.to_owned(),
-                        album: track_album.to_owned()
+                        album: track_album.to_owned(),
+                        hash: hash.to_owned()
                     };
                     tx_.send(found).unwrap();
                 }
