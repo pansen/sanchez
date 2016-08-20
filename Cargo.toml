@@ -21,7 +21,7 @@ maud_macros = "0.9.*"
 
 # nom = "^1.2.4"
 
-# futures = "0.1.*"
+futures = { git = "https://github.com/alexcrichton/futures-rs" }
 
 # options parsing
 # https://github.com/kbknapp/clap-rs
