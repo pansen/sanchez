@@ -10,8 +10,8 @@ fern = "0.3.5"
 time = "0.1.35"
 ansi_term = "0.7.*"
 threadpool = "1.3.*"
-dotenv = "0.8.*"
-# dotenv_macros = "0.8.*"
+dotenv = { git = "https://github.com/slapresta/rust-dotenv" }
+dotenv_macros = { git = "https://github.com/slapresta/rust-dotenv" }
 id3 = "0.1.10"
 walkdir = "0.1.*"
 rust-crypto = "0.2.*"
