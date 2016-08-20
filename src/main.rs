@@ -13,6 +13,7 @@ extern crate walkdir;
 extern crate id3;
 extern crate notify;
 extern crate crypto;
+extern crate num_cpus;
 extern crate diesel;
 extern crate r2d2;
 extern crate r2d2_diesel;

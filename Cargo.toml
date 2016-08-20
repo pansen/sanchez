@@ -15,6 +15,7 @@ dotenv_macros = { git = "https://github.com/slapresta/rust-dotenv" }
 id3 = "0.1.10"
 walkdir = "0.1.*"
 rust-crypto = "0.2.*"
+num_cpus = "1.0.*"
 
 maud = "0.9.*"
 maud_macros = "0.9.*"

@@ -2,6 +2,7 @@ use clap::{App, Arg};
 use dotenv::dotenv;
 use std::env;
 use ansi_term::Colour::{Green, White};
+use num_cpus;
 
 /// App Config
 /// this is marked as clonable (implements `std::clone::Clone`)
@@ -52,6 +53,8 @@ pub fn parse() -> AppConfig {
             .required(true)
             .index(1))
         .get_matches();
+    let os_cpus = num_cpus::get();
+    println!("detected cpus: {:?}", os_cpus);
     let n_jobs = matches.value_of("JOBS").unwrap_or("1").parse::<usize>().unwrap();
     //    if let Some(ref n_jobs) = matches.value_of("JOBS").unwrap_or("1") {
     //        println!("number of jobs: {}", n_jobs);
