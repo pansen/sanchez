@@ -63,8 +63,8 @@ impl Scanner {
 
         for value in rx.iter() {
             warn!("[recursive] receiving {} - {} from thread",
-                   Red.paint(value.album),
-                   Green.paint(value.title),
+                  Red.paint(value.album),
+                  Green.paint(value.title),
             );
         }
     }
@@ -85,8 +85,8 @@ impl Scanner {
 
         for value in rx.iter() {
             warn!("[single] receiving {} - {} from thread",
-                   Red.paint(value.album),
-                   Green.paint(value.title),
+                  Red.paint(value.album),
+                  Green.paint(value.title),
             );
         }
     }
