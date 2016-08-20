@@ -34,6 +34,7 @@ csv = "0.14.*"
 
 rustc-serialize = "0.3.16"
 
+rust-sqlite = "0.3.*"
 diesel = "0.7.0"
 diesel_codegen = { version = "0.7.0", default-features = false, features = ["sqlite"] }
 
