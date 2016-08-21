@@ -49,9 +49,6 @@ fn main() {
     info!("running with {} threads, connection: {}", Yellow.paint(config.jobs.to_string()),
           Yellow.paint(config.database_url.to_owned()));
 
-    // this refers to the `Track` tablename
-    use schema::track::dsl::track as track_dsl;
-
     let r2d2_config = r2d2::Config::default();
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
@@ -71,22 +68,18 @@ fn main() {
                   Yellow.paint(created_track.album),
                   Yellow.paint(created_track.title),
                   created_track.hash);
+
+            track_manager.show_tracks();
+            // TODO amb: won't work:
+            //            thread::spawn(move || {
+            //                track_manager.show_tracks();
+            //            });
         });
     }
 
-    // TODO amb: no idea what the `*` is doing here. but it solves a problem
-    // see: https://github.com/diesel-rs/diesel/issues/339
-    let results = track_dsl
-        .limit(5)
-        .load::<models::Track>(&*pool.get().unwrap())
-        .expect("Error loading tracks");
-    info!("found {:?} tracks", results.len());
-    for t_ in results {
-        info!("found track in db: {} - {}  [{}]",
-              Yellow.paint(t_.album),
-              Yellow.paint(t_.title),
-              t_.hash)
-    }
+    let connection = &*pool.get().unwrap();
+    let track_manager = manager::TrackManager::new(connection);
+    track_manager.show_tracks();
 
     let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 
