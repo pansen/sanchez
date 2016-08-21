@@ -54,8 +54,8 @@ pub fn parse() -> AppConfig {
             .index(1))
         .get_matches();
     let os_cpus = num_cpus::get();
-    println!("detected cpus: {:?}", os_cpus);
-    let n_jobs = matches.value_of("JOBS").unwrap_or("1").parse::<usize>().unwrap();
+    let n_jobs = matches.value_of("JOBS").unwrap_or(&os_cpus.to_string())
+        .parse::<usize>().unwrap();
     //    if let Some(ref n_jobs) = matches.value_of("JOBS").unwrap_or("1") {
     //        println!("number of jobs: {}", n_jobs);
     //    }
