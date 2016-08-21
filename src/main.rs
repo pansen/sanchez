@@ -28,6 +28,7 @@ use std::process::{exit, };
 use std::thread;
 use std::vec::Vec;
 use std::env;
+use ansi_term::Colour::{Green};
 
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
@@ -36,6 +37,8 @@ use r2d2_diesel::ConnectionManager;
 fn main() {
     let config = arguments::parse();
     logging::setup_logging(&config);
+
+    info!("running with {} threads", Green.paint(config.jobs.to_string()));
 
     let r2d2_config = r2d2::Config::default();
     let manager = ConnectionManager::<SqliteConnection>::new(env::var("DATABASE_URL").unwrap());
