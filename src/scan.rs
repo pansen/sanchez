@@ -13,6 +13,10 @@ use std::fs::File;
 use models;
 use manager::TrackManager;
 
+use r2d2;
+use r2d2_diesel::ConnectionManager;
+use diesel::sqlite::SqliteConnection;
+
 
 /// struct which creates an object acting as a scanner. we'll hold only one of this
 /// to take advantage of a shared `ThreadPool`, preconfigured `base_path` etc.
@@ -51,9 +55,10 @@ impl<'a> Scanner<'a> {
                     },
                     Err(why) => {
                         let tx = tx.clone();
+                        let pool = self.config.pool.clone();
 
                         self.thread_pool.execute(move || {
-                            extract_tag(&file_.path(), &tx)
+                            extract_tag(&file_.path(), &tx, &pool)
                         });
                     }
                 }
@@ -78,11 +83,12 @@ impl<'a> Scanner<'a> {
         info!("scan single file `{}`", Yellow.paint(path_name));
         let path_name_copy = path_name.to_owned();
         let (tx, rx) = mpsc::channel();
+        let pool = self.config.pool.clone();
 
         self.thread_pool.execute(move || {
             let path = Path::new(&path_name_copy);
             if !path.is_dir() {
-                extract_tag(&path, &tx);
+                extract_tag(&path, &tx, &pool);
             }
         });
 
@@ -117,7 +123,8 @@ fn is_mp3(entry: &DirEntry) -> bool {
 }
 
 /// encapsulates the tag-extraction logic
-fn extract_tag(path: &Path, tx_: &mpsc::Sender<models::Track>) {
+fn extract_tag(path: &Path, tx_: &mpsc::Sender<models::Track>,
+               pool: &r2d2::Pool<ConnectionManager<SqliteConnection>>) {
     let mut sha = Sha512::new();
     let mut f = File::open(path).unwrap();
     let mut buffer = Vec::new();
@@ -127,33 +134,43 @@ fn extract_tag(path: &Path, tx_: &mpsc::Sender<models::Track>) {
 
     let hash = sha.result_str();
 
-    match Tag::read_from_path(path) {
-        Err(why) => {
-            error!("{:?}, failed to read: {:?}", why, path);
-            let found = models::Track {
-                path: path.display().to_string(),
-                title: path::basename(path).display().to_string(),
-                album: "".to_string(),
-                hash: hash.to_owned()
-            };
-            tx_.send(found).unwrap();
+    let connection = &*pool.get().unwrap();
+    let track_manager = TrackManager::new(connection);
+
+    match track_manager.by_hash(&hash) {
+        Ok(track) => {
+            info!("hash {:?} was already found in db", hash)
         },
-        Ok(tag) => {
-            match tag.title() {
-                None => warn!("failed to extract title: {:?}", path),
-                Some(track_title) => {
-                    let track_album = tag.album().unwrap();
-                    debug!("extracted file: {}", path.display());
+        Err(why) => {
+            match Tag::read_from_path(path) {
+                Err(why) => {
+                    error!("{:?}, failed to read: {:?}", why, path);
                     let found = models::Track {
                         path: path.display().to_string(),
-                        title: track_title.to_owned(),
-                        album: track_album.to_owned(),
+                        title: path::basename(path).display().to_string(),
+                        album: "".to_string(),
                         hash: hash.to_owned()
                     };
                     tx_.send(found).unwrap();
+                },
+                Ok(tag) => {
+                    match tag.title() {
+                        None => warn!("failed to extract title: {:?}", path),
+                        Some(track_title) => {
+                            let track_album = tag.album().unwrap();
+                            debug!("extracted file: {}", path.display());
+                            let found = models::Track {
+                                path: path.display().to_string(),
+                                title: track_title.to_owned(),
+                                album: track_album.to_owned(),
+                                hash: hash.to_owned()
+                            };
+                            tx_.send(found).unwrap();
+                        }
+                    }
                 }
-            }
+            };
         }
-    };
+    }
     drop(tx_);
 }
