@@ -62,7 +62,10 @@ fn main() {
         thread::spawn(move || {
             let connection = &*pool.get().unwrap();
             let track_manager = manager::TrackManager::new(connection);
-            let created_track = track_manager.create_track();
+            let created_track = track_manager.create_track("path",
+                                                           "title",
+                                                           "album",
+                                                           "hash1");
 
             info!("created track: {} - {}  [{}]",
                   Yellow.paint(created_track.album),
@@ -70,7 +73,6 @@ fn main() {
                   created_track.hash);
         });
     }
-
 
     // TODO amb: no idea what the `*` is doing here. but it solves a problem
     // see: https://github.com/diesel-rs/diesel/issues/339

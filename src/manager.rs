@@ -20,14 +20,9 @@ impl<'a> TrackManager<'a> {
         }
     }
 
-    pub fn create_track(&self) -> Track {
+    pub fn create_track<'b>(&self, path: &'b str, title: &'b str, album: &'b str, hash: &'b str) -> Track {
         use schema::track;
         use schema::track::dsl::track as track_dsl;
-
-        let path = "path";
-        let title = "title";
-        let album = "album";
-        let hash = "hash";
 
         let new_track = NewTrack {
             path: path,
@@ -38,7 +33,7 @@ impl<'a> TrackManager<'a> {
 
         diesel::insert(&new_track).into(track::table)
             .execute(self.conn)
-            .expect("Error saving new post");
+            .expect("Error saving new track");
 
         track_dsl.find(hash)
             .get_result::<Track>(self.conn)
