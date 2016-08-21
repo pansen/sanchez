@@ -49,6 +49,24 @@ dyld: Symbol not found: __cg_jpeg_resync_to_restart
 error: Process didn't exit successfully: `target/debug/sanchez /tmp/ -vvv -w` (signal: 5, SIGTRAP: trace/breakpoint trap)
 ```
 
+
+Some values in `arguments.rs` are `warn`ed to be unused, though they are
+used
+```
+warning: value assigned to `verbosity` is never read, #[warn(unused_assignments)] on by default
+  --> src/arguments.rs:72:9
+   |
+72 |     let mut verbosity = 0;
+   |         ^^^^^^^^^^^^^
+
+warning: struct field is never used: `thread_number`, #[warn(dead_code)] on by default
+  --> src/scan.rs:22:5
+   |
+22 |     thread_number: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+```
+
 ## Links
 
 ### Environment
