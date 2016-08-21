@@ -28,6 +28,7 @@ see: https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust
 Once rust is setup, we can compile and start
 
 ```
+diesel migration run
 cargo build && time RUST_BACKTRACE=1 target/debug/sanchez ~/Music/ -vv
 ```
 
