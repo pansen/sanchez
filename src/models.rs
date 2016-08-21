@@ -5,6 +5,7 @@ use super::schema::track;
 ///
 /// TODO amb: *attention* the `PRIMARY KEY` field must be the first in this struct
 /// #[column_name(something)] will not work
+#[derive(Debug)]
 #[derive(Queryable)]
 pub struct Track {
     /// hash of the parsed file
@@ -18,6 +19,7 @@ pub struct Track {
 }
 
 
+#[derive(Debug)]
 #[insertable_into(track)]
 pub struct NewTrack<'a> {
     pub hash: &'a str,

@@ -34,9 +34,15 @@ impl<'a> TrackManager<'a> {
             hash: hash,
         };
 
-        diesel::insert(&new_track).into(track::table)
-            .execute(self.conn)
-            .expect("Error saving new track");
+        match diesel::insert(&new_track).into(track::table)
+            .execute(self.conn) {
+            Err(why) => {
+                error!("failed saving new track: {:?}, {:?}", why, new_track);
+            },
+            Ok(t_) => {
+                info!("saved new track: {:?}", t_);
+            }
+        }
 
         track_dsl.find(hash)
             .get_result::<Track>(self.conn)

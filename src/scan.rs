@@ -53,13 +53,14 @@ impl<'a> Scanner<'a> {
         }
         drop(tx);
         for track_ in rx.iter() {
+            info!("{:?}", &track_.path);
+            warn!("{} - {}  [{}]",
+                  Green.paint(track_.album.to_owned()),
+                  Green.paint(track_.title.to_owned()),
+                  track_.hash.to_owned(),
+            );
             self.track_manager.create_track(&track_.path, &track_.album, &track_.title,
                                             &track_.hash);
-            warn!("{} - {}  [{}]",
-                  Green.paint(track_.album),
-                  Green.paint(track_.title),
-                  track_.hash,
-            );
         }
     }
 
