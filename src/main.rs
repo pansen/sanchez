@@ -78,26 +78,28 @@ fn main() {
         });
     }
 
+    let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
+
+    if config.watch == true {
+        let pool = pool.clone();
+        let config = config.clone();
+
+        watcher_handles.push(thread::spawn(move || {
+            let connection = &*pool.get().unwrap();
+            let track_manager = manager::TrackManager::new(connection);
+            // TODO amb: would be nicer to share only *one* `Scanner` here, but i don't know how exactly
+            let scanner_thread = scan::Scanner::new(&config, &track_manager);
+
+            let _ = watch::watch_reference(&config, &scanner_thread);
+        }));
+    }
     let connection = &*pool.get().unwrap();
     let track_manager = manager::TrackManager::new(connection);
     track_manager.show_tracks();
 
-    let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
-
-    if config.watch == true {
-        let config = config.clone();
-        // TODO amb: would be nicer to share only *one* `Scanner` here, but i don't know how exactly
-        let scanner_thread = scan::Scanner::new(&config);
-
-        watcher_handles.push(thread::spawn(move || {
-            let _ = watch::watch_reference(&config, &scanner_thread);
-        }));
-    }
-
-    let scanner = scan::Scanner::new(&config);
+    let scanner = scan::Scanner::new(&config, &track_manager);
     // connection_pool: r2d2::Pool<r2d2_diesel::ConnectionManager<diesel::sqlite::SqliteConnection>>
     scanner.scan_all();
-
 
     // after the scanner is done, we just join the watcher thread to avoid the mainthread to exit
     // creating a channel could also be done, but seems like overhead here
@@ -105,6 +107,7 @@ fn main() {
     for handle in watcher_handles {
         let _ = handle.join();
     }
+
     exit(0);
 }
 

@@ -11,23 +11,26 @@ use crypto::sha2::Sha512;
 use std::io::prelude::*;
 use std::fs::File;
 use models;
+use manager::TrackManager;
 
 
 /// struct which creates an object acting as a scanner. we'll hold only one of this
 /// to take advantage of a shared `ThreadPool`, preconfigured `base_path` etc.
-pub struct Scanner {
+pub struct Scanner<'a> {
     base_path: String,
     thread_pool: ThreadPool,
     thread_number: usize,
+    track_manager: &'a TrackManager<'a>,
 }
 
-impl Scanner {
+impl<'a> Scanner<'a> {
     /// constructor
-    pub fn new(config: &AppConfig) -> Scanner {
+    pub fn new(config: &AppConfig, manager: &'a TrackManager) -> Scanner<'a> {
         Scanner {
             base_path: config.path.to_owned(),
             thread_pool: ThreadPool::new(config.jobs),
-            thread_number: config.jobs
+            thread_number: config.jobs,
+            track_manager: manager
         }
     }
 
@@ -50,6 +53,8 @@ impl Scanner {
         }
         drop(tx);
         for track_ in rx.iter() {
+            self.track_manager.create_track(&track_.path, &track_.album, &track_.title,
+                                            &track_.hash);
             warn!("{} - {}  [{}]",
                   Green.paint(track_.album),
                   Green.paint(track_.title),
