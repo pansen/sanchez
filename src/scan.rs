@@ -18,7 +18,7 @@ use models;
 pub struct Scanner {
     base_path: String,
     thread_pool: ThreadPool,
-    thread_number: usize
+    thread_number: usize,
 }
 
 impl Scanner {
@@ -49,11 +49,11 @@ impl Scanner {
             }
         }
         drop(tx);
-        for value in rx.iter() {
+        for track_ in rx.iter() {
             warn!("{} - {}  [{}]",
-                  Green.paint(value.album),
-                  Green.paint(value.title),
-                  value.hash,
+                  Green.paint(track_.album),
+                  Green.paint(track_.title),
+                  track_.hash,
             );
         }
     }

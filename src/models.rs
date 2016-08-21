@@ -1,3 +1,6 @@
+use super::schema::track;
+
+
 /// Channel struct for found tracks
 #[derive(Queryable)]
 pub struct Track {
@@ -9,4 +12,13 @@ pub struct Track {
     pub album: String,
     /// hash of the parsed file
     pub hash: String
+}
+
+
+#[insertable_into(track)]
+pub struct NewTrack<'a> {
+    pub path: &'a str,
+    pub title: &'a str,
+    pub album: &'a str,
+    pub hash: &'a str,
 }

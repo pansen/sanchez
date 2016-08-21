@@ -37,7 +37,36 @@ use ansi_term::Colour::{Yellow};
 
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
-use self::diesel::prelude::*;
+use diesel::prelude::*;
+
+
+use self::models::{Track, NewTrack};
+
+pub fn create_track<'a>(conn: &SqliteConnection) -> Track {
+    use schema::track;
+    use schema::track::dsl::track as track_dsl;
+
+    let path = "path";
+    let title = "title";
+    let album = "album";
+    let hash = "hash";
+
+    let new_track = NewTrack {
+        path: path,
+        title: title,
+        album: album,
+        hash: hash,
+    };
+
+    diesel::insert(&new_track).into(track::table)
+        .execute(conn)
+        .expect("Error saving new post");
+
+    track_dsl.find(hash)
+        .get_result::<Track>(conn)
+        .expect(&format!("Unable to find track {}", hash))
+}
+
 
 fn main() {
     let config = arguments::parse();
@@ -52,6 +81,12 @@ fn main() {
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
 
+    let created_track = create_track(&*pool.get().unwrap());
+    info!("created track: {} - {}  [{}]",
+          Yellow.paint(created_track.album),
+          Yellow.paint(created_track.title),
+          created_track.hash);
+
     // TODO amb: no idea what the `*` is doing here. but it solves a problem
     // see: https://github.com/diesel-rs/diesel/issues/339
     let results = track
@@ -59,6 +94,12 @@ fn main() {
         .load::<models::Track>(&*pool.get().unwrap())
         .expect("Error loading tracks");
     info!("found {:?} tracks", results.len());
+    for t_ in results {
+        info!("found track in db: {} - {}  [{}]",
+              Yellow.paint(t_.album),
+              Yellow.paint(t_.title),
+              t_.hash)
+    }
 
     let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 
@@ -73,6 +114,7 @@ fn main() {
     }
 
     let scanner = scan::Scanner::new(&config);
+    // connection_pool: r2d2::Pool<r2d2_diesel::ConnectionManager<diesel::sqlite::SqliteConnection>>
     scanner.scan_all();
 
 
