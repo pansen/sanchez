@@ -29,7 +29,7 @@ pub fn setup_logging(config: &AppConfig) {
     };
 
     if let Err(e) = fern::init_global_logger(logger_config, log_level) {
-        panic!("Failed to initialize global logger: {}", e);
+        panic!("Failed to initialize global logger: {:?}", e);
     }
 }
 

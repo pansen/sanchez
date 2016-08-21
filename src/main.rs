@@ -58,6 +58,7 @@ fn main() {
     let scanner = scan::Scanner::new(&config);
     scanner.scan_all();
 
+
     // after the scanner is done, we just join the watcher thread to avoid the mainthread to exit
     // creating a channel could also be done, but seems like overhead here
     // http://stackoverflow.com/a/26200583/2741111

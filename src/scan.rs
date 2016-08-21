@@ -16,7 +16,9 @@ use std::fs::File;
 struct FoundTrack {
     /// path of that file
     pub path: String,
+    /// id3 title
     pub title: String,
+    /// id3 album
     pub album: String,
     /// hash of the parsed file
     pub hash: String
@@ -59,11 +61,11 @@ impl Scanner {
             }
         }
         drop(tx);
-
         for value in rx.iter() {
-            warn!("[recursive] receiving {} - {} from thread",
-                  Red.paint(value.album),
+            warn!("{} - {}  [{}]",
+                  Green.paint(value.album),
                   Green.paint(value.title),
+                  value.hash,
             );
         }
     }

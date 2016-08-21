@@ -1,0 +1,9 @@
+CREATE TABLE track (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path  TEXT NOT NULL,
+    title  TEXT NOT NULL,
+    album  TEXT DEFAULT NULL,
+    hash  TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS track__hash on track(hash);
