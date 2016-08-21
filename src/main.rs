@@ -29,6 +29,7 @@ mod path;
 mod arguments;
 mod scan;
 mod watch;
+mod manager;
 
 use std::process::{exit, };
 use std::thread;
@@ -38,33 +39,8 @@ use ansi_term::Colour::{Yellow};
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
 use diesel::prelude::*;
-use self::models::{Track, NewTrack};
 
-
-pub fn create_track<'a>(conn: &SqliteConnection) -> Track {
-    use schema::track;
-    use schema::track::dsl::track as track_dsl;
-
-    let path = "path";
-    let title = "title";
-    let album = "album";
-    let hash = "hash";
-
-    let new_track = NewTrack {
-        path: path,
-        title: title,
-        album: album,
-        hash: hash,
-    };
-
-    diesel::insert(&new_track).into(track::table)
-        .execute(conn)
-        .expect("Error saving new post");
-
-    track_dsl.find(hash)
-        .get_result::<Track>(conn)
-        .expect(&format!("Unable to find track {}", hash))
-}
+use models::{Track, NewTrack};
 
 
 fn main() {
@@ -80,11 +56,21 @@ fn main() {
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
 
-    let created_track = create_track(&*pool.get().unwrap());
-    info!("created track: {} - {}  [{}]",
-          Yellow.paint(created_track.album),
-          Yellow.paint(created_track.title),
-          created_track.hash);
+    {
+        let pool = pool.clone();
+
+        thread::spawn(move || {
+            let connection = &*pool.get().unwrap();
+            let track_manager = manager::TrackManager::new(connection);
+            let created_track = track_manager.create_track();
+
+            info!("created track: {} - {}  [{}]",
+                  Yellow.paint(created_track.album),
+                  Yellow.paint(created_track.title),
+                  created_track.hash);
+        });
+    }
+
 
     // TODO amb: no idea what the `*` is doing here. but it solves a problem
     // see: https://github.com/diesel-rs/diesel/issues/339
