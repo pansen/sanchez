@@ -1,7 +1,7 @@
 use clap::{App, Arg};
 use dotenv::dotenv;
 use std::env;
-use ansi_term::Colour::{Green, White};
+use ansi_term::Colour::{Green};
 use num_cpus;
 
 /// App Config
@@ -25,7 +25,7 @@ pub fn parse() -> AppConfig {
     dotenv().ok();
 
     let mut database_url: String = String::new();
-    for (key, value) in env::vars().filter(|tuple| tuple.0 == "DATABASE_URL") {
+    for (_, value) in env::vars().filter(|tuple| tuple.0 == "DATABASE_URL") {
         database_url = value;
     }
 

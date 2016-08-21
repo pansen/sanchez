@@ -8,7 +8,6 @@ use std::path::{Path};
 use id3::Tag;
 use crypto::digest::Digest;
 use crypto::sha2::Sha512;
-use std::io;
 use std::io::prelude::*;
 use std::fs::File;
 
