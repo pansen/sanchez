@@ -38,8 +38,10 @@ rustc-serialize = "0.3.16"
 rust-sqlite = "0.3.*"
 r2d2 = "0.7.*"
 r2d2-diesel = "0.7.*"
-diesel = "0.7.0"
-diesel_codegen = { version = "0.7.0", default-features = false, features = ["sqlite"] }
+# https://github.com/sgrif/pq-sys/commit/3ad9f7b77a6c4f50d5d7277bce05c836a62a4398
+pq-sys = "0.2.3"
+diesel = "0.7.*"
+diesel_codegen = { version = "0.7.*", default-features = false, features = ["sqlite"] }
 
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }

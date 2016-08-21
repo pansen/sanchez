@@ -17,6 +17,7 @@ dependencies = [
  "maud_macros 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 2.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pq-sys 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2-diesel 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust-crypto 0.2.36 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -119,12 +120,12 @@ name = "diesel_codegen"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "diesel_codegen_syntex 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "diesel_codegen_syntex 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "diesel_codegen_syntex"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "diesel 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -273,7 +274,7 @@ dependencies = [
 [[package]]
 name = "futures"
 version = "0.1.0"
-source = "git+https://github.com/alexcrichton/futures-rs#8e09aea831780fff0928380ab7b5a7a3ca7c1a32"
+source = "git+https://github.com/alexcrichton/futures-rs#a61c491e3e5e22d5d644602e6a5f0fe8d6323f6a"
 dependencies = [
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "scoped-tls 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -281,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "gcc"
-version = "0.3.33"
+version = "0.3.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -365,7 +366,7 @@ name = "miniz-sys"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "gcc 0.3.33 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.34 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -570,7 +571,7 @@ name = "rust-crypto"
 version = "0.2.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "gcc 0.3.33 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.34 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -706,7 +707,7 @@ dependencies = [
 "checksum csv 0.14.7 (registry+https://github.com/rust-lang/crates.io-index)" = "266c1815d7ca63a5bd86284043faf91e8c95e943e55ce05dc0ae08e952de18bc"
 "checksum diesel 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "57577c0fd5ad12d03ce0f4496299e41af842e8795caf5f260a20505d3554411a"
 "checksum diesel_codegen 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "cfa64218b8185511bbbcdf27fbc5c65a54097e33d77d9d7cce4eee6b88ae539c"
-"checksum diesel_codegen_syntex 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8bb8bc90ef990d0bbfbb62bd5722559f95f0f15020532d6096f62b1d7b17f7f0"
+"checksum diesel_codegen_syntex 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e995f5e55a0af3c11e3de779ca791f6ce2ae37a44ed7d07d9a4c4b0d28b09e3f"
 "checksum dotenv 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "eea1395d2df3b5344dc577809296d9578303296e8d105c408aa80ed67d598ef1"
 "checksum dotenv 0.9.0 (git+https://github.com/slapresta/rust-dotenv)" = "<none>"
 "checksum dotenv_codegen 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)" = "906b1be457c75358949c82d4055f40210c0c7abaa0c48e40de86cca243957b36"
@@ -725,7 +726,7 @@ dependencies = [
 "checksum fsevent 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)" = "740a52ca589381d87dd0d9960555de3320aa6d408326659e3bae88be9f71a125"
 "checksum fsevent-sys 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "72e33a926306442d961595c3a325864326ca4287795e106dae8993afe484ede6"
 "checksum futures 0.1.0 (git+https://github.com/alexcrichton/futures-rs)" = "<none>"
-"checksum gcc 0.3.33 (registry+https://github.com/rust-lang/crates.io-index)" = "063e8ac7c33abdf621c094e879a7fee97cda9fb42e5f12b30e95d4549f8cb310"
+"checksum gcc 0.3.34 (registry+https://github.com/rust-lang/crates.io-index)" = "f62cfdcf5bd48dc5787053f8bba036a6af4ed5f7c664fc8038acd8d9fd17e674"
 "checksum id3 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)" = "577070a2ef64ebf7d02c90c41f7809456631c913eab3f0cf471caff7967c8193"
 "checksum inotify 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "e8458c07bdbdaf309c80e2c3304d14c3db64e7465d4f07cf589ccb83fd0ff31a"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
