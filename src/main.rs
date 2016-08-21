@@ -35,6 +35,7 @@ use std::process::{exit, };
 use std::thread;
 use std::vec::Vec;
 use ansi_term::Colour::{Yellow};
+use std::time::Duration;
 
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
@@ -49,7 +50,13 @@ fn main() {
     info!("running with {} threads, connection: {}", Yellow.paint(config.jobs.to_string()),
           Yellow.paint(config.database_url.to_owned()));
 
-    let r2d2_config = r2d2::Config::default();
+    let r2d2_config = r2d2::Config::builder()
+        .pool_size(1)  // with sqlite a pool bigger than `1` does not make sense
+        .helper_threads(3)
+        .test_on_check_out(false)
+        .initialization_fail_fast(false)
+        .connection_timeout(Duration::from_secs(3))
+        .build();
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
 
