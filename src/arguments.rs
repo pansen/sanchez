@@ -3,16 +3,10 @@ use dotenv::dotenv;
 use std::env;
 use ansi_term::Colour::{Green};
 use num_cpus;
-use r2d2;
-use r2d2_diesel::ConnectionManager;
-use diesel::sqlite::SqliteConnection;
-use std::error::Error;
-use std::time::Duration;
-
 
 /// App Config
 /// this is marked as clonable (implements `std::clone::Clone`)
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppConfig {
     /// how many jobs to process
     pub jobs: usize,
@@ -24,8 +18,6 @@ pub struct AppConfig {
     pub watch: bool,
     /// database connection string
     pub database_url: String,
-    /// database connection pool
-    pub pool: r2d2::Pool<ConnectionManager<SqliteConnection>>,
 }
 
 /// parses the given arguments our app
@@ -92,18 +84,8 @@ pub fn parse() -> AppConfig {
         _ => ()
     }
 
-    let r2d2_config = r2d2::Config::builder()
-        .pool_size(1)  // with sqlite a pool bigger than `1` does not make sense
-        .helper_threads(3)
-        .test_on_check_out(false)
-        .initialization_fail_fast(false)
-        .connection_timeout(Duration::from_secs(3))
-        .build();
-    let manager = ConnectionManager::<SqliteConnection>::new(database_url.to_owned());
-    let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
-
     AppConfig {
         jobs: n_jobs, path: search_path.to_string(), verbose: verbosity, watch: watch,
-        database_url: database_url, pool: pool
+        database_url: database_url
     }
 }
