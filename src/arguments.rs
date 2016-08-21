@@ -16,14 +16,17 @@ pub struct AppConfig {
     pub verbose: usize,
     /// enable directory watching
     pub watch: bool,
+    /// database connection string
+    pub database_url: String,
 }
 
 /// parses the given arguments our app
 pub fn parse() -> AppConfig {
     dotenv().ok();
 
+    let mut database_url: String = String::new();
     for (key, value) in env::vars().filter(|tuple| tuple.0 == "DATABASE_URL") {
-        println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
+        database_url = value;
     }
 
     let matches = App::new("Rust Playground")
@@ -81,5 +84,8 @@ pub fn parse() -> AppConfig {
         _ => ()
     }
 
-    AppConfig { jobs: n_jobs, path: search_path.to_string(), verbose: verbosity, watch: watch }
+    AppConfig {
+        jobs: n_jobs, path: search_path.to_string(), verbose: verbosity, watch: watch,
+        database_url: database_url
+    }
 }
