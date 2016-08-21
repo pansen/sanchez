@@ -10,19 +10,7 @@ use crypto::digest::Digest;
 use crypto::sha2::Sha512;
 use std::io::prelude::*;
 use std::fs::File;
-
-
-/// Channel struct for found tracks
-struct FoundTrack {
-    /// path of that file
-    pub path: String,
-    /// id3 title
-    pub title: String,
-    /// id3 album
-    pub album: String,
-    /// hash of the parsed file
-    pub hash: String
-}
+use models;
 
 
 /// struct which creates an object acting as a scanner. we'll hold only one of this
@@ -115,7 +103,7 @@ fn is_mp3(entry: &DirEntry) -> bool {
 }
 
 /// encapsulates the tag-extraction logic
-fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
+fn extract_tag(path: &Path, tx_: &mpsc::Sender<models::Track>) {
     let mut sha = Sha512::new();
     let mut f = File::open(path).unwrap();
     let mut buffer = Vec::new();
@@ -128,7 +116,7 @@ fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
     match Tag::read_from_path(path) {
         Err(why) => {
             error!("{:?}, failed to read: {:?}", why, path);
-            let found = FoundTrack {
+            let found = models::Track {
                 path: path.display().to_string(),
                 title: path::basename(path).display().to_string(),
                 album: "".to_string(),
@@ -142,7 +130,7 @@ fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
                 Some(track_title) => {
                     let track_album = tag.album().unwrap();
                     debug!("extracted file: {}", path.display());
-                    let found = FoundTrack {
+                    let found = models::Track {
                         path: path.display().to_string(),
                         title: track_title.to_owned(),
                         album: track_album.to_owned(),

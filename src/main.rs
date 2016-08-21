@@ -1,3 +1,9 @@
+#![feature(custom_derive, custom_attribute, plugin)]
+#![plugin(diesel_codegen, dotenv_macros)]
+
+pub mod models;
+pub mod schema;
+
 #[macro_use] extern crate log;
 extern crate fern;
 
@@ -14,7 +20,7 @@ extern crate id3;
 extern crate notify;
 extern crate crypto;
 extern crate num_cpus;
-extern crate diesel;
+#[macro_use] extern crate diesel;
 extern crate r2d2;
 extern crate r2d2_diesel;
 
@@ -31,7 +37,7 @@ use ansi_term::Colour::{Yellow};
 
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
-
+use self::diesel::prelude::*;
 
 fn main() {
     let config = arguments::parse();
@@ -39,9 +45,20 @@ fn main() {
     info!("running with {} threads, connection: {}", Yellow.paint(config.jobs.to_string()),
           Yellow.paint(config.database_url.to_owned()));
 
+    // this refers to the `Track` tablename
+    use schema::track::dsl::*;
+
     let r2d2_config = r2d2::Config::default();
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
+
+    // TODO amb: no idea what the `*` is doing here. but it solves a problem
+    // see: https://github.com/diesel-rs/diesel/issues/339
+    let results = track
+        .limit(5)
+        .load::<models::Track>(&*pool.get().unwrap())
+        .expect("Error loading tracks");
+    info!("found {:?} tracks", results.len());
 
     let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 

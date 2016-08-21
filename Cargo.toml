@@ -1,8 +1,8 @@
 [package]
 
-name = "Rust Playground"
+name = "rust_playground"
 version = "0.0.1"
-authors = [ "Andi <andi@zerotired.com>" ]
+authors = [ "andi <andi@zerotired.com>" ]
 
 [dependencies]
 log = "0.3.*"
