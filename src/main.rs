@@ -29,18 +29,17 @@ use std::thread;
 use std::vec::Vec;
 use std::env;
 
-use diesel::pg::PgConnection;
+use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
 
 
 fn main() {
     let config = arguments::parse();
+    logging::setup_logging(&config);
 
     let r2d2_config = r2d2::Config::default();
-    let manager = ConnectionManager::<PgConnection>::new(env::var("DATABASE_URL").unwrap());
+    let manager = ConnectionManager::<SqliteConnection>::new(env::var("DATABASE_URL").unwrap());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
-
-    logging::setup_logging(&config);
 
     let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 
