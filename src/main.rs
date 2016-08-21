@@ -60,31 +60,6 @@ fn main() {
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
     let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
 
-    {
-        let pool = pool.clone();
-
-        thread::spawn(move || {
-            let connection = &*pool.get().unwrap();
-            let track_manager = manager::TrackManager::new(connection);
-            let created_track = track_manager
-                .create_track("path",
-                              "title",
-                              "album",
-                              &time::strftime("%Y-%m-%d %H:%M:%S.%f", &time::now()).unwrap());
-
-            info!("created track: {} - {}  [{}]",
-                  Yellow.paint(created_track.album),
-                  Yellow.paint(created_track.title),
-                  created_track.hash);
-
-            track_manager.show_tracks();
-            // TODO amb: won't work:
-            //            thread::spawn(move || {
-            //                track_manager.show_tracks();
-            //            });
-        });
-    }
-
     let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 
     if config.watch == true {

@@ -72,7 +72,7 @@ impl<'a> Scanner<'a> {
     }
 
     /// re-scan a given file
-    /// TODO amb: merge the threaded part to be in one place from `scan_all` and `scan_file`
+    /// TODO amb: this only proves parallelism so far, does nothing useful
     pub fn scan_file(&self, path_name: &str) {
         info!("scan single file `{}`", Yellow.paint(path_name));
         let path_name_copy = path_name.to_owned();

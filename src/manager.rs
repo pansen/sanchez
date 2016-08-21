@@ -46,14 +46,17 @@ impl<'a> TrackManager<'a> {
             .expect(&format!("Unable to find track {}", hash))
     }
 
+    /// search one `Track` by the given path
     pub fn by_path<'b>(&self, path: &'b str) -> Result<Track, diesel::result::Error> {
         track_dsl.filter(track::path.eq(path)).get_result::<Track>(self.conn)
     }
 
+    /// search one `Track` by the given hash (which is the identifier)
     pub fn by_hash<'b>(&self, hash: &'b str) -> Result<Track, diesel::result::Error> {
         track_dsl.find(hash).get_result::<Track>(self.conn)
     }
 
+    /// query and log all `Track`s found
     pub fn show_tracks(&self) {
         // TODO amb: no idea what the `*` is doing here. but it solves a problem
         // see: https://github.com/diesel-rs/diesel/issues/339

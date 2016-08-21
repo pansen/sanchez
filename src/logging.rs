@@ -21,7 +21,7 @@ pub fn setup_logging(config: &AppConfig) {
             // This is a fairly simple format, though it's possible to do more complicated ones.
             // This closure can contain any code, as long as it produces a String message.
             //format!("[{}][{}] {}", time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(), level, msg)
-            format!("[{}][{}] {}", time::now().strftime("%H:%M:%S").unwrap(), level, msg)
+            format!("[{}][{}] {}", time::now().strftime("%H:%M:%S.%f").unwrap(), level, msg)
         }),
         // add a file-output: ``, fern::OutputConfig::file("output.log")``
         output: vec![fern::OutputConfig::stdout()],
