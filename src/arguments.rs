@@ -22,7 +22,7 @@ pub struct AppConfig {
 pub fn parse() -> AppConfig {
     dotenv().ok();
 
-    for (key, value) in env::vars().filter(|tuple| tuple.0 == "FOO") {
+    for (key, value) in env::vars().filter(|tuple| tuple.0 == "DATABASE_URL") {
         println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
     }
 
