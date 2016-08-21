@@ -44,11 +44,18 @@ impl<'a> Scanner<'a> {
         for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
             let file_ = file_.unwrap();
             if !file_.path().is_dir() {
-                let tx = tx.clone();
+                match self.track_manager.by_path(file_.path().to_str().unwrap()) {
+                    Ok(track) => {
+                        debug!("track {:?} was already found in db", file_.path())
+                    },
+                    Err(why) => {
+                        let tx = tx.clone();
 
-                self.thread_pool.execute(move || {
-                    extract_tag(&file_.path(), &tx)
-                });
+                        self.thread_pool.execute(move || {
+                            extract_tag(&file_.path(), &tx)
+                        });
+                    }
+                }
             }
         }
         drop(tx);
