@@ -3,7 +3,7 @@ use super::schema::track;
 
 /// Channel struct for found tracks
 ///
-/// TODO amb: *attention* the field names in the db-creation must match the given order here
+/// TODO amb: *attention* the `PRIMARY KEY` field must be the first in this struct
 /// #[column_name(something)] will not work
 #[derive(Queryable)]
 pub struct Track {
