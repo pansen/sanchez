@@ -59,10 +59,11 @@ fn main() {
         thread::spawn(move || {
             let connection = &*pool.get().unwrap();
             let track_manager = manager::TrackManager::new(connection);
-            let created_track = track_manager.create_track("path",
-                                                           "title",
-                                                           "album",
-                                                           "hash1");
+            let created_track = track_manager
+                .create_track("path",
+                              "title",
+                              "album",
+                              &time::strftime("%Y-%m-%d %H:%M:%S.%f", &time::now()).unwrap());
 
             info!("created track: {} - {}  [{}]",
                   Yellow.paint(created_track.album),
