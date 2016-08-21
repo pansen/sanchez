@@ -38,9 +38,8 @@ use ansi_term::Colour::{Yellow};
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
 use diesel::prelude::*;
-
-
 use self::models::{Track, NewTrack};
+
 
 pub fn create_track<'a>(conn: &SqliteConnection) -> Track {
     use schema::track;
@@ -75,7 +74,7 @@ fn main() {
           Yellow.paint(config.database_url.to_owned()));
 
     // this refers to the `Track` tablename
-    use schema::track::dsl::*;
+    use schema::track::dsl::track as track_dsl;
 
     let r2d2_config = r2d2::Config::default();
     let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
@@ -89,7 +88,7 @@ fn main() {
 
     // TODO amb: no idea what the `*` is doing here. but it solves a problem
     // see: https://github.com/diesel-rs/diesel/issues/339
-    let results = track
+    let results = track_dsl
         .limit(5)
         .load::<models::Track>(&*pool.get().unwrap())
         .expect("Error loading tracks");
