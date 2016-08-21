@@ -17,7 +17,7 @@ use manager::TrackManager;
 /// struct which creates an object acting as a scanner. we'll hold only one of this
 /// to take advantage of a shared `ThreadPool`, preconfigured `base_path` etc.
 pub struct Scanner<'a> {
-    base_path: String,
+    config: &'a AppConfig,
     thread_pool: ThreadPool,
     thread_number: usize,
     track_manager: &'a TrackManager<'a>,
@@ -25,9 +25,9 @@ pub struct Scanner<'a> {
 
 impl<'a> Scanner<'a> {
     /// constructor
-    pub fn new(config: &AppConfig, manager: &'a TrackManager) -> Scanner<'a> {
+    pub fn new(config: &'a AppConfig, manager: &'a TrackManager) -> Scanner<'a> {
         Scanner {
-            base_path: config.path.to_owned(),
+            config: config,
             thread_pool: ThreadPool::new(config.jobs),
             thread_number: config.jobs,
             track_manager: manager
@@ -36,9 +36,10 @@ impl<'a> Scanner<'a> {
 
     /// search a given path for mp3 files
     pub fn scan_all(&self) {
+        let base_path = self.config.path.to_owned();
         info!("searching for files in `{}`",
-              Yellow.paint(path::realpath(Path::new(&self.base_path)).to_str().unwrap()));
-        let walker = WalkDir::new(&self.base_path).into_iter();
+              Yellow.paint(path::realpath(Path::new(&base_path)).to_str().unwrap()));
+        let walker = WalkDir::new(&base_path).into_iter();
         let (tx, rx) = mpsc::channel();
 
         for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {

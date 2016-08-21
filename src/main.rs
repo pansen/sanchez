@@ -35,10 +35,7 @@ use std::process::{exit, };
 use std::thread;
 use std::vec::Vec;
 use ansi_term::Colour::{Yellow};
-use std::time::Duration;
 
-use diesel::sqlite::SqliteConnection;
-use r2d2_diesel::ConnectionManager;
 use diesel::prelude::*;
 
 use models::{Track, NewTrack};
@@ -50,18 +47,8 @@ fn main() {
     info!("running with {} threads, connection: {}", Yellow.paint(config.jobs.to_string()),
           Yellow.paint(config.database_url.to_owned()));
 
-    let r2d2_config = r2d2::Config::builder()
-        .pool_size(1)  // with sqlite a pool bigger than `1` does not make sense
-        .helper_threads(3)
-        .test_on_check_out(false)
-        .initialization_fail_fast(false)
-        .connection_timeout(Duration::from_secs(3))
-        .build();
-    let manager = ConnectionManager::<SqliteConnection>::new(config.database_url.to_owned());
-    let pool = r2d2::Pool::new(r2d2_config, manager).expect("Failed to create pool.");
-
     {
-        let pool = pool.clone();
+        let pool = config.pool.clone();
 
         thread::spawn(move || {
             let connection = &*pool.get().unwrap();
@@ -88,11 +75,10 @@ fn main() {
     let mut watcher_handles: Vec<thread::JoinHandle<_>> = Vec::with_capacity(1);
 
     if config.watch == true {
-        let pool = pool.clone();
         let config = config.clone();
 
         watcher_handles.push(thread::spawn(move || {
-            let connection = &*pool.get().unwrap();
+            let connection = &*config.pool.get().unwrap();
             let track_manager = manager::TrackManager::new(connection);
             // TODO amb: would be nicer to share only *one* `Scanner` here, but i don't know how exactly
             let scanner_thread = scan::Scanner::new(&config, &track_manager);
@@ -100,7 +86,7 @@ fn main() {
             let _ = watch::watch_reference(&config, &scanner_thread);
         }));
     }
-    let connection = &*pool.get().unwrap();
+    let connection = &*config.pool.get().unwrap();
     let track_manager = manager::TrackManager::new(connection);
     track_manager.show_tracks();
 

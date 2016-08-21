@@ -38,7 +38,7 @@ impl<'a> TrackManager<'a> {
                 error!("failed saving new track: {:?}, {:?}", why, new_track);
             },
             Ok(t_) => {
-                info!("saved new track: {:?}", t_);
+                debug!("saved new track: {:?}", t_);
             }
         }
 
