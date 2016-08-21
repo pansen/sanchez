@@ -12,6 +12,7 @@ process.
 
 ## Build & Run
 
+### Prerequisites
 Since some dependencies require the unstable `Plugin` feature, we need to have
 a nightly version of Rust installed. The easiest way is using
 [`rustup`](https://www.rustup.rs/)
@@ -19,34 +20,55 @@ a nightly version of Rust installed. The easiest way is using
 ```
 rustup install nightly
 rustup default nightly
-
-cargo build
-time cargo run -- ~/Music -j4 -vv -w
 ```
 
 see: https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust
 
+### Develop
+Once rust is setup, we can compile and start
 
-### Links
+```
+cargo build && time RUST_BACKTRACE=1 target/debug/sanchez ~/Music/ -vv
+```
 
-#### Environment
+Note we don't call `cargo run`, see "Issues" below
+
+
+## Issues
+
+When running `cargo build && time RUST_BACKTRACE=1 cargo run -- /tmp/  -vvv`
+we receive an error that goes back to `cargo`
+```
+    Finished debug [unoptimized + debuginfo] target(s) in 0.0 secs
+    Finished debug [unoptimized + debuginfo] target(s) in 0.0 secs
+     Running `target/debug/sanchez /tmp/ -vvv -w`
+dyld: Symbol not found: __cg_jpeg_resync_to_restart
+  Referenced from: /System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO
+  Expected in: /opt/local/lib/libJPEG.dylib
+ in /System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO
+error: Process didn't exit successfully: `target/debug/sanchez /tmp/ -vvv -w` (signal: 5, SIGTRAP: trace/breakpoint trap)
+```
+
+## Links
+
+### Environment
 
 - [`rustup` announcement](https://blog.rust-lang.org/2016/05/13/rustup.html)
 
-#### Threads
+### Threads
 
 - [Threadpool](https://frewsxcv.github.io/rust-threadpool/threadpool/index.html)
 
-#### Strings
+### Strings
 
 - [Rust Strings](http://www.steveklabnik.com/rust-issue-17340/)
 - [string vs. str](http://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html)
 
-#### Crypto
+### Crypto
 
 - http://siciarz.net/24-days-of-rust-rust-crypto/
 
-#### Framework
+### Framework
 
 - [Web Frameworks](https://github.com/flosse/rust-web-framework-comparison)
 
