@@ -1,7 +1,8 @@
 use clap::{App, Arg};
 use dotenv::dotenv;
 use std::env;
-use ansi_term::Colour::{Green, White};
+use ansi_term::Colour::{Green};
+use num_cpus;
 
 /// App Config
 /// this is marked as clonable (implements `std::clone::Clone`)
@@ -15,14 +16,17 @@ pub struct AppConfig {
     pub verbose: usize,
     /// enable directory watching
     pub watch: bool,
+    /// database connection string
+    pub database_url: String,
 }
 
 /// parses the given arguments our app
 pub fn parse() -> AppConfig {
     dotenv().ok();
 
-    for (key, value) in env::vars().filter(|tuple| tuple.0 == "FOO") {
-        println!("dotenv: {}: {}", Green.paint(key), White.paint(value));
+    let mut database_url: String = String::new();
+    for (_, value) in env::vars().filter(|tuple| tuple.0 == "DATABASE_URL") {
+        database_url = value;
     }
 
     let matches = App::new("Rust Playground")
@@ -52,7 +56,9 @@ pub fn parse() -> AppConfig {
             .required(true)
             .index(1))
         .get_matches();
-    let n_jobs = matches.value_of("JOBS").unwrap_or("1").parse::<usize>().unwrap();
+    let os_cpus = num_cpus::get();
+    let n_jobs = matches.value_of("JOBS").unwrap_or(&os_cpus.to_string())
+        .parse::<usize>().unwrap();
     //    if let Some(ref n_jobs) = matches.value_of("JOBS").unwrap_or("1") {
     //        println!("number of jobs: {}", n_jobs);
     //    }
@@ -78,5 +84,8 @@ pub fn parse() -> AppConfig {
         _ => ()
     }
 
-    AppConfig { jobs: n_jobs, path: search_path.to_string(), verbose: verbosity, watch: watch }
+    AppConfig {
+        jobs: n_jobs, path: search_path.to_string(), verbose: verbosity, watch: watch,
+        database_url: database_url
+    }
 }

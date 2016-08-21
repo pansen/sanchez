@@ -6,32 +6,31 @@ use std::sync::mpsc;
 use walkdir::{DirEntry, WalkDir, WalkDirIterator};
 use std::path::{Path};
 use id3::Tag;
-
-
-/// Channel struct for found tracks
-struct FoundTrack {
-    /// path of that file
-    pub path: String,
-    pub title: String,
-    pub album: String
-}
+use crypto::digest::Digest;
+use crypto::sha2::Sha512;
+use std::io::prelude::*;
+use std::fs::File;
+use models;
+use manager::TrackManager;
 
 
 /// struct which creates an object acting as a scanner. we'll hold only one of this
 /// to take advantage of a shared `ThreadPool`, preconfigured `base_path` etc.
-pub struct Scanner {
+pub struct Scanner<'a> {
     base_path: String,
     thread_pool: ThreadPool,
-    thread_number: usize
+    thread_number: usize,
+    track_manager: &'a TrackManager<'a>,
 }
 
-impl Scanner {
+impl<'a> Scanner<'a> {
     /// constructor
-    pub fn new(config: &AppConfig) -> Scanner {
+    pub fn new(config: &AppConfig, manager: &'a TrackManager) -> Scanner<'a> {
         Scanner {
             base_path: config.path.to_owned(),
             thread_pool: ThreadPool::new(config.jobs),
-            thread_number: config.jobs
+            thread_number: config.jobs,
+            track_manager: manager
         }
     }
 
@@ -45,25 +44,35 @@ impl Scanner {
         for file_ in walker.filter_entry(|e| e.path().is_dir() || (!is_hidden(e) && is_mp3(e))) {
             let file_ = file_.unwrap();
             if !file_.path().is_dir() {
-                let tx = tx.clone();
+                match self.track_manager.by_path(file_.path().to_str().unwrap()) {
+                    Ok(track) => {
+                        debug!("track {:?} was already found in db", file_.path())
+                    },
+                    Err(why) => {
+                        let tx = tx.clone();
 
-                self.thread_pool.execute(move || {
-                    extract_tag(&file_.path(), &tx)
-                });
+                        self.thread_pool.execute(move || {
+                            extract_tag(&file_.path(), &tx)
+                        });
+                    }
+                }
             }
         }
         drop(tx);
-
-        for value in rx.iter() {
-            debug!("[recursive] receiving {} - {} from thread",
-                   Red.paint(value.album),
-                   Green.paint(value.title),
+        for track_ in rx.iter() {
+            info!("{:?}", &track_.path);
+            warn!("{} - {}  [{}]",
+                  Green.paint(track_.album.to_owned()),
+                  Green.paint(track_.title.to_owned()),
+                  track_.hash.to_owned(),
             );
+            self.track_manager.create_track(&track_.path, &track_.album, &track_.title,
+                                            &track_.hash);
         }
     }
 
     /// re-scan a given file
-    /// TODO amb: merge the threaded part to be in one place from `scan_all` and `scan_file`
+    /// TODO amb: this only proves parallelism so far, does nothing useful
     pub fn scan_file(&self, path_name: &str) {
         info!("scan single file `{}`", Yellow.paint(path_name));
         let path_name_copy = path_name.to_owned();
@@ -77,9 +86,9 @@ impl Scanner {
         });
 
         for value in rx.iter() {
-            debug!("[single] receiving {} - {} from thread",
-                   Red.paint(value.album),
-                   Green.paint(value.title),
+            warn!("[single] receiving {} - {} from thread",
+                  Red.paint(value.album),
+                  Green.paint(value.title),
             );
         }
     }
@@ -107,14 +116,24 @@ fn is_mp3(entry: &DirEntry) -> bool {
 }
 
 /// encapsulates the tag-extraction logic
-fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
+fn extract_tag(path: &Path, tx_: &mpsc::Sender<models::Track>) {
+    let mut sha = Sha512::new();
+    let mut f = File::open(path).unwrap();
+    let mut buffer = Vec::new();
+
+    let _ = f.read_to_end(&mut buffer);
+    sha.input(buffer.as_slice());
+
+    let hash = sha.result_str();
+
     match Tag::read_from_path(path) {
         Err(why) => {
             error!("{:?}, failed to read: {:?}", why, path);
-            let found = FoundTrack {
+            let found = models::Track {
                 path: path.display().to_string(),
                 title: path::basename(path).display().to_string(),
-                album: "".to_string()
+                album: "".to_string(),
+                hash: hash.to_owned()
             };
             tx_.send(found).unwrap();
         },
@@ -124,10 +143,11 @@ fn extract_tag(path: &Path, tx_: &mpsc::Sender<FoundTrack>) {
                 Some(track_title) => {
                     let track_album = tag.album().unwrap();
                     debug!("extracted file: {}", path.display());
-                    let found = FoundTrack {
+                    let found = models::Track {
                         path: path.display().to_string(),
                         title: track_title.to_owned(),
-                        album: track_album.to_owned()
+                        album: track_album.to_owned(),
+                        hash: hash.to_owned()
                     };
                     tx_.send(found).unwrap();
                 }

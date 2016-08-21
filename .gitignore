@@ -2,9 +2,7 @@
 ###################
 target
 
-# Build files #
-###############
-/Cargo.lock
+/*.sqlite3
 
 # Packages #
 ############

@@ -1,8 +1,8 @@
 [package]
 
-name = "Rust Playground"
-version = "0.0.1"
-authors = [ "Andi <andi@zerotired.com>" ]
+name = "rust_playground"
+version = "0.0.2"
+authors = [ "andi <andi@zerotired.com>" ]
 
 [dependencies]
 log = "0.3.*"
@@ -10,14 +10,19 @@ fern = "0.3.5"
 time = "0.1.35"
 ansi_term = "0.7.*"
 threadpool = "1.3.*"
-dotenv = "0.8.0"
-# dotenv_macros = "0.8.0"
+dotenv = { git = "https://github.com/slapresta/rust-dotenv" }
+dotenv_macros = { git = "https://github.com/slapresta/rust-dotenv" }
 id3 = "0.1.10"
 walkdir = "0.1.*"
+rust-crypto = "0.2.*"
+num_cpus = "1.0.*"
+
+maud = "0.9.*"
+maud_macros = "0.9.*"
 
 # nom = "^1.2.4"
 
-# futures = "0.1.*"
+futures = { git = "https://github.com/alexcrichton/futures-rs" }
 
 # options parsing
 # https://github.com/kbknapp/clap-rs
@@ -29,6 +34,12 @@ notify = "2.6.*"
 csv = "0.14.*"
 
 rustc-serialize = "0.3.16"
+
+rust-sqlite = "0.3.*"
+r2d2 = "0.7.*"
+r2d2-diesel = "0.7.*"
+diesel = "0.7.0"
+diesel_codegen = { version = "0.7.0", default-features = false, features = ["sqlite"] }
 
 # local stuff
 # name_of_dependency = { path = "/path/to/dep" }
